@@ -32,12 +32,28 @@
       (apply max)))
 
 ; --------------------------
+; problem 2
+
+(defn findTop3Calories
+  []
+  (->> calories
+       (map #(apply + %))
+       (sort >)
+       (take 3)
+       (apply +)))
+
+; --------------------------
 ; results
 
 (defn day01-1
   []
   (findMostCalories))
 
+(defn day01-2
+  []
+  (findTop3Calories))
+
 (defn -main
   []
-  (println (day01-1)))
+  (println (day01-1))
+  (println (day01-2)))
