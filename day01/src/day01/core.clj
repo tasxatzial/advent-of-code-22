@@ -22,6 +22,22 @@
 
 (def calories (parse-input (slurp input-file)))
 
+; --------------------------
+; problem 1
+
+(defn findMostCalories
+  []
+  (->> calories
+      (map #(apply + %))
+      (apply max)))
+
+; --------------------------
+; results
+
+(defn day01-1
+  []
+  (findMostCalories))
+
 (defn -main
   []
-  (println calories))
+  (println (day01-1)))
