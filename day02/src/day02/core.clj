@@ -23,13 +23,23 @@
   (let [data (memoized-data)]
     (map decrypt-round-fn data)))
 
+(def choice->choice-num
+  "Maps a choice to a number according to the following rules:
+  :rock -> 0
+  :paper -> 1
+  :scissors -> 2"
+  {:rock 0
+   :paper 1
+   :scissors 2})
+
 (defn round-outcome
   "Returns :loss or :win or :draw depending on the outcome of the round."
   [round]
-  (case round
-    ([:scissors :paper] [:paper :rock] [:rock :scissors]) :loss
-    ([:paper :scissors] [:rock :paper] [:scissors :rock]) :win
-    ([:paper :paper] [:scissors :scissors] [:rock :rock]) :draw))
+  (let [[elf-choice my-choice] (map choice->choice-num round)]
+    (case (mod (- my-choice elf-choice) 3)
+      0 :draw
+      1 :win
+      :loss)))
 
 (defn outcome-score
   "Returns the score of the outcome of a round: 6 if won, 0 if lost, 3 if draw."
