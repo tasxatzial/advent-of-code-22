@@ -2,6 +2,37 @@
   (:gen-class))
 
 ; --------------------------
+; utils
+
+(defn reverse-map
+  "Reverses the mapping of key->val in the given map."
+  [m]
+  (let [key-val (seq m)
+        k (map first key-val)
+        v (map second key-val)]
+    (zipmap v k)))
+
+(def choice->num
+  "Maps a choice to a number."
+  {:rock 0
+   :paper 1
+   :scissors 2})
+
+(def num->choice
+  "Maps a number to a choice. Reverses the mapping of choice->num"
+  (reverse-map choice->num))
+
+(def outcome->num
+  "Maps an outcome to a number."
+  {:draw 0
+   :win 1
+   :loss 2})
+
+(def num->outcome
+  "Maps a number to an outcome. Reverses the mapping of outcome-num."
+  (reverse-map outcome->num))
+
+; --------------------------
 ; common
 
 (def input-file "resources\\input.txt")
@@ -23,23 +54,11 @@
   (let [data (memoized-data)]
     (map decrypt-round-fn data)))
 
-(def choice->choice-num
-  "Maps a choice to a number according to the following rules:
-  :rock -> 0
-  :paper -> 1
-  :scissors -> 2"
-  {:rock 0
-   :paper 1
-   :scissors 2})
-
 (defn round-outcome
   "Returns :loss or :win or :draw depending on the outcome of the round."
   [round]
-  (let [[elf-choice my-choice] (map choice->choice-num round)]
-    (case (mod (- my-choice elf-choice) 3)
-      0 :draw
-      1 :win
-      :loss)))
+  (let [[elf-choice my-choice] (map choice->num round)]
+    (get num->outcome (mod (- my-choice elf-choice) 3))))
 
 (defn outcome-score
   "Returns the score of the outcome of a round: 6 if won, 0 if lost, 3 if draw."
@@ -115,20 +134,10 @@
 (defn find-my-choice
   "Returns what I should play based on a given round (p2)."
   [round]
-  (let [[elf-choice outcome] round]
-    (case elf-choice
-      :rock (case outcome
-              :loss :scissors
-              :draw :rock
-              :win :paper)
-      :paper (case outcome
-               :loss :rock
-               :draw :paper
-               :win :scissors)
-      :scissors (case outcome
-                  :loss :paper
-                  :draw :scissors
-                  :win :rock))))
+  (let [[elf-choice outcome] round
+        elf-choice-num (choice->num elf-choice)
+        outcome-num (outcome->num outcome)]
+    (get num->choice (mod (+ elf-choice-num outcome-num) 3))))
 
 (defn decrypt-round-p2
   "Decrypts a round that consists of two symbols (p2)."
