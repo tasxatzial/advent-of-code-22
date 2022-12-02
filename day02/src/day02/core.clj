@@ -88,6 +88,45 @@
   (map decrypt-symbol-p1 round))
 
 ; --------------------------
+; problem 2
+
+(defn decrypt-symbol-p2
+  "Decrypt a symbol (p2).
+  Returns:
+  :rock for symbol A
+  :paper for symbol B
+  :scissors for symbol C
+  :draw for symbol Y
+  :loss for symbol X
+  :win for symbol Z"
+  [s]
+  (case s
+    "A" :rock
+    "B" :paper
+    "C" :scissors
+    "Y" :draw
+    "X" :loss
+    "Z" :win))
+
+(defn find-my-choice
+  "Returns what I should play based on a given decrypted round (p2)."
+  [round]
+  (let [[elf-choice outcome] round]
+    (case elf-choice
+      :rock (case outcome
+              :loss :scissors
+              :draw :rock
+              :win :paper)
+      :paper (case outcome
+               :loss :rock
+               :draw :paper
+               :win :scissors)
+      :scissors (case outcome
+                  :loss :paper
+                  :draw :scissors
+                  :win :rock))))
+
+; --------------------------
 ; results
 
 (defn day02
