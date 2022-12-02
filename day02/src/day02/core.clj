@@ -6,28 +6,22 @@
 
 (def input-file "resources\\input.txt")
 
-(defn parse-input
-  "Parses the input string and returns a sequence of vectors.
-  Each vector represents the instructions in a round."
-  [s]
-  (->> s
-    clojure.string/split-lines
-    (map #(clojure.string/split % #" "))))
-
-(defn parse-file
-  "Reads and parses the input file into a string."
+(defn input-file->coll
+  "Reads and parses the input file into a collection of vectors.
+  Each vector represents the -unencrypted- instructions in a round."
   []
   (->> input-file
        slurp
-       parse-input))
+       clojure.string/split-lines
+       (map #(clojure.string/split % #" "))))
 
-(def memoized-parse-file (memoize parse-file))
+(def memoized-data (memoize input-file->coll))
 
-(defn decrypt-strategy
-  "Decrypts the parsed input using a decrypt function on each round."
-  [decrypt-fn]
-  (let [parsed-file (memoized-parse-file)]
-    (map decrypt-fn parsed-file)))
+(defn decrypt-strategy-guide
+  "Decrypts the strategy guide using a decrypt function on each round."
+  [decrypt-round-fn]
+  (let [data (memoized-data)]
+    (map decrypt-round-fn data)))
 
 (defn round-outcome
   "Returns :loss or :win or :draw depending on the outcome of the round."
@@ -45,8 +39,8 @@
     :loss 0
     :draw 3))
 
-(defn shape-score
-  "Returns the score of each shape: 3 for :scissors, 2 for :paper, 1 for :rock."
+(defn choice-score
+  "Returns the score of a choice: 3 for :scissors, 2 for :paper, 1 for :rock."
   [s]
   (case s
     :scissors 3
@@ -58,7 +52,7 @@
   shape-score and outcome-score."
   [round]
   (let [my-selection (second round)]
-    (+ (outcome-score round) (shape-score my-selection))))
+    (+ (outcome-score round) (choice-score my-selection))))
 
 (defn total-score
   "Calculates the total score when all rounds have ended."
@@ -84,8 +78,8 @@
 
 (defn decrypt-round-p1
   "Decrypts a round that consists of two symbols (p1)."
-  [round]
-  (map decrypt-symbol-p1 round))
+  [encrypted-round]
+  (map decrypt-symbol-p1 encrypted-round))
 
 ; --------------------------
 ; problem 2
@@ -109,7 +103,7 @@
     "Z" :win))
 
 (defn find-my-choice
-  "Returns what I should play based on a given decrypted round (p2)."
+  "Returns what I should play based on a given round (p2)."
   [round]
   (let [[elf-choice outcome] round]
     (case elf-choice
@@ -127,9 +121,9 @@
                   :win :rock))))
 
 (defn decrypt-round-p2
-  "Returns the choices of both players in a round."
-  [round]
-  (let [decrypted-round (map decrypt-symbol-p2 round)
+  "Decrypts a round that consists of two symbols (p2)."
+  [encrypted-round]
+  (let [decrypted-round (map decrypt-symbol-p2 encrypted-round)
         elf-choice (first decrypted-round)
         my-choice (find-my-choice decrypted-round)]
     [elf-choice my-choice]))
@@ -138,9 +132,9 @@
 ; results
 
 (defn day02
-  [decrypt-fn]
-  (let [decrypted-strategy (decrypt-strategy decrypt-fn)]
-    (total-score decrypted-strategy)))
+  [decrypt-round-fn]
+  (let [strategy-guide (decrypt-strategy-guide decrypt-round-fn)]
+    (total-score strategy-guide)))
 
 (defn day02-1
   []
