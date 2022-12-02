@@ -67,6 +67,22 @@
   (let [my-selection (second round)]
     (+ (outcome-score round) (shape-score my-selection))))
 
+; --------------------------
+; problem 1
+
+(defn total-score
+  []
+  (->> decrypted-strategy
+       (map round-score)
+       (apply +)))
+
+; --------------------------
+; results
+
+(defn day02-1
+  []
+  (total-score))
+
 (defn -main
   []
-  (println decrypted-strategy))
+  (println (day02-1)))
