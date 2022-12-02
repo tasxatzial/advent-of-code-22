@@ -14,27 +14,20 @@
     clojure.string/split-lines
     (map #(clojure.string/split % #" "))))
 
-(defn decrypt-symbol
-  "Decrypt a symbol. Returns:
-  :rock for symbols A and X
-  :paper for symbols B and Y
-  :scissors for symbols C and Z"
-  [s]
-  (case s
-    ("A" "X") :rock
-    ("B" "Y")  :paper
-    ("C" "Z") :scissors))
+(defn parse-file
+  "Reads and parses the input file into a string."
+  []
+  (->> input-file
+       slurp
+       parse-input))
+
+(def memoized-parse-file (memoize parse-file))
 
 (defn decrypt-strategy
-  "Decrypts the strategy guide."
-  [strategy]
-  (map #(map decrypt-symbol %) strategy))
-
-(def decrypted-strategy
-  (-> input-file
-      slurp
-      parse-input
-      decrypt-strategy))
+  "Decrypts the parsed input using a decrypt function on each round."
+  [decrypt-fn]
+  (let [parsed-file (memoized-parse-file)]
+    (map decrypt-fn parsed-file)))
 
 (defn round-outcome
   "Returns :loss or :win or :draw depending on the outcome of the round."
@@ -67,21 +60,44 @@
   (let [my-selection (second round)]
     (+ (outcome-score round) (shape-score my-selection))))
 
-; --------------------------
-; problem 1
-
 (defn total-score
-  []
-  (->> decrypted-strategy
+  "Calculates the total score when all rounds have ended."
+  [strategy]
+  (->> strategy
        (map round-score)
        (apply +)))
 
 ; --------------------------
+; problem 1
+
+(defn decrypt-symbol-p1
+  "Decrypt a symbol (p1).
+  Returns:
+  :rock for symbols A and X
+  :paper for symbols B and Y
+  :scissors for symbols C and Z"
+  [s]
+  (case s
+    ("A" "X") :rock
+    ("B" "Y") :paper
+    ("C" "Z") :scissors))
+
+(defn decrypt-round-p1
+  "Decrypts a round that consists of two symbols (p1)."
+  [round]
+  (map decrypt-symbol-p1 round))
+
+; --------------------------
 ; results
+
+(defn day02
+  [decrypt-fn]
+  (let [decrypted-strategy (decrypt-strategy decrypt-fn)]
+    (total-score decrypted-strategy)))
 
 (defn day02-1
   []
-  (total-score))
+  (day02 decrypt-round-p1))
 
 (defn -main
   []
