@@ -14,8 +14,28 @@
     clojure.string/split-lines
     (map #(clojure.string/split % #" "))))
 
-(def strategy (parse-input (slurp input-file)))
+(defn decrypt-symbol
+  "Decrypt a symbol. Returns:
+  :rock for symbols A and X
+  :paper for symbols B and Y
+  :scissors for symbols C and Z"
+  [s]
+  (case s
+    ("A" "X") :rock
+    ("B" "Y")  :paper
+    ("C" "Z") :scissors))
+
+(defn decrypt-strategy
+  "Decrypts the strategy guide."
+  [strategy]
+  (map #(map decrypt-symbol %) strategy))
+
+(def decrypted-strategy
+  (-> input-file
+      slurp
+      parse-input
+      decrypt-strategy))
 
 (defn -main
   []
-  (println strategy))
+  (println decrypted-strategy))
