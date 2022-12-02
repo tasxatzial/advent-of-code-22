@@ -126,6 +126,14 @@
                   :draw :scissors
                   :win :rock))))
 
+(defn decrypt-round-p2
+  "Returns the choices of both players in a round."
+  [round]
+  (let [decrypted-round (map decrypt-symbol-p2 round)
+        elf-choice (first decrypted-round)
+        my-choice (find-my-choice decrypted-round)]
+    [elf-choice my-choice]))
+
 ; --------------------------
 ; results
 
@@ -138,6 +146,11 @@
   []
   (day02 decrypt-round-p1))
 
+(defn day02-2
+  []
+  (day02 decrypt-round-p2))
+
 (defn -main
   []
-  (println (day02-1)))
+  (println (day02-1))
+  (println (day02-2)))
