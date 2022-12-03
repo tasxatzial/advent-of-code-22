@@ -14,14 +14,21 @@
 
 (def input-file "resources\\input.txt")
 
+(defn rucksack->compartments
+  "Converts a string that represents a rucksack to its compartment representation:
+  A collection of two equally sized lists, each containing the items in a compartment."
+  [rucksack]
+  (let [rucksack-size (count rucksack)]
+    (partition (/ rucksack-size 2) rucksack)))
+
 (defn input-file->rucksacks
-  "Reads and parses the input file into a collection of sets.
-  Each set represents the contents in a rucksack."
+  "Reads and parses the input file into a collection rucksacks. Each rucksack
+  is split into two compartments."
   []
   (->> input-file
        slurp
        clojure.string/split-lines
-       (map set)))
+       (map rucksack->compartments)))
 
 (def memoized-rucksacks (memoize input-file->rucksacks))
 
