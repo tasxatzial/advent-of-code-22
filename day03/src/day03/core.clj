@@ -1,4 +1,5 @@
 (ns day03.core
+  (:require [clojure.set :as set])
   (:gen-class))
 
 ; --------------------------
@@ -39,6 +40,27 @@
     (- (int item) 38)
     (- (int item) 96)))
 
+; --------------------------
+; problem 1
+
+(defn get-rucksack-common-items
+  "Returns a collection of the items that appear in both compartments of each rucksack."
+  [rucksack]
+  (let [first-compartment (first rucksack)
+        second-compartment (second rucksack)]
+    (seq (set/intersection (set first-compartment) (set second-compartment)))))
+
+; --------------------------
+; results
+
+(defn day03-1
+  []
+  (->> (memoized-rucksacks)
+       (map get-rucksack-common-items)
+       flatten
+       (map get-item-priority)
+       (apply +)))
+
 (defn -main
   []
-  (println (memoized-rucksacks)))
+  (println (day03-1)))
