@@ -20,38 +20,29 @@
        (filter #(not= '("") %))
        (map #(map str->int %))))
 
-(def calories (parse-input (slurp input-file)))
+(def elves-calories (parse-input (slurp input-file)))
 
-; --------------------------
-; problem 1
-
-(defn findMostCalories
-  []
-  (->> calories
-      (map #(apply + %))
-      (apply max)))
-
-; --------------------------
-; problem 2
-
-(defn findTop3Calories
-  []
-  (->> calories
-       (map #(apply + %))
-       (sort >)
-       (take 3)
-       (apply +)))
+(defn elf-total-calories
+  "Returns the total calories carried by an elf."
+  [calories]
+  (apply + calories))
 
 ; --------------------------
 ; results
 
 (defn day01-1
   []
-  (findMostCalories))
+  (->> elves-calories
+       (map elf-total-calories)
+       (apply max)))
 
 (defn day01-2
   []
-  (findTop3Calories))
+  (->> elves-calories
+       (map elf-total-calories)
+       (sort >)
+       (take 3)
+       (apply +)))
 
 (defn -main
   []
