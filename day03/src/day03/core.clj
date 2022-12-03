@@ -50,6 +50,15 @@
     (apply set/intersection compartments-set)))
 
 ; --------------------------
+; problem 2
+
+(defn get-rucksacks-common-items
+  "Returns a set of the common items in the given rucksack collection."
+  [rucksacks]
+  (let [rucksacks-set (map set rucksacks)]
+    (apply set/intersection rucksacks-set)))
+
+; --------------------------
 ; results
 
 (defn day03-1
@@ -60,6 +69,16 @@
        (map get-item-priority)
        (apply +)))
 
+(defn day03-2
+  []
+  (->> (memoized-rucksacks)
+       (partition 3)
+       (map (comp seq get-rucksacks-common-items))
+       flatten
+       (map get-item-priority)
+       (apply +)))
+
 (defn -main
   []
-  (println (day03-1)))
+  (println (day03-1))
+  (println (day03-2)))
