@@ -10,6 +10,12 @@
   [letter]
   (<= 65 (int letter) 90))
 
+(defn get-common-items
+  "Accepts a collection of collections and returns their intersection."
+  [coll]
+  (let [coll-sets (map set coll)]
+    (apply set/intersection coll-sets)))
+
 ; --------------------------
 ; common
 
@@ -35,48 +41,48 @@
 ; --------------------------
 ; problem 1
 
-(defn rucksack->compartments
+(defn extract-rucksack-compartments
   "Converts a string that represents a rucksack to its compartment representation:
   A collection of two equally sized lists, each containing the items in a compartment."
   [rucksack]
   (let [rucksack-size (count rucksack)]
     (partition (/ rucksack-size 2) rucksack)))
 
-(defn get-compartment-common-items
-  "Returns a set of the items that appear in both compartments of each rucksack."
-  [rucksack]
-  (let [compartments (rucksack->compartments rucksack)
-        compartments-set (map set compartments)]
-    (apply set/intersection compartments-set)))
+(defn rucksacks->compartments
+  "Partitions the rucksacks into compartments. Returns a collection that has the
+  following structure: (((left compartment) (right compartment)), ...)"
+  []
+  (->> (memoized-rucksacks)
+       (map extract-rucksack-compartments)))
 
 ; --------------------------
 ; problem 2
 
-(defn get-rucksacks-common-items
-  "Returns a set of the common items in the given rucksack collection."
-  [rucksacks]
-  (let [rucksacks-set (map set rucksacks)]
-    (apply set/intersection rucksacks-set)))
+(defn rucksacks->grouped-by-3
+  "Partitions the rucksacks into groups of 3. Returns a collection that has the
+  following structure: ((rucksack1 rucksack2 rucksack3), ...)"
+  []
+  (->> (memoized-rucksacks)
+       (partition 3)))
 
 ; --------------------------
 ; results
 
-(defn day03-1
-  []
-  (->> (memoized-rucksacks)
-       (map (comp seq get-compartment-common-items))
+(defn day03
+  [partitioned-data]
+  (->> partitioned-data
+       (map (comp seq get-common-items))
        flatten
        (map get-item-priority)
        (apply +)))
 
+(defn day03-1
+  []
+  (day03 (rucksacks->compartments)))
+
 (defn day03-2
   []
-  (->> (memoized-rucksacks)
-       (partition 3)
-       (map (comp seq get-rucksacks-common-items))
-       flatten
-       (map get-item-priority)
-       (apply +)))
+  (day03 (rucksacks->grouped-by-3)))
 
 (defn -main
   []
