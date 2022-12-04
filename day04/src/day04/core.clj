@@ -33,11 +33,23 @@
 ; problem1
 
 (defn assignments-overlap_p1?
-  "Returns true if any of the assignment pairs overlaps the other, false otherwise."
+  "Returns true if any of the assignment pairs overlaps the other, false otherwise (p1)."
   [assignment-pair]
   (let [[[a1-start a1-end] [a2-start a2-end]] assignment-pair]
     (or (and (>= a1-start a2-start) (<= a1-end a2-end))
         (and (>= a2-start a1-start) (<= a2-end a1-end)))))
+
+; --------------------------
+; problem2
+
+(defn assignments-overlap_p2?
+  "Returns true if any of the assignment pairs overlaps the other, false otherwise (p2)."
+  [assignment-pair]
+  (let [[[a1-start a1-end] [a2-start a2-end]] assignment-pair]
+    (or (<= a2-start a1-end a2-end)
+        (<= a2-start a1-start a2-end)
+        (<= a1-start a2-start a1-end)
+        (<= a1-start a2-end a1-end))))
 
 ; --------------------------
 ; results
@@ -52,6 +64,11 @@
   []
   (day04 assignments-overlap_p1?))
 
+(defn day04-2
+  []
+  (day04 assignments-overlap_p2?))
+
 (defn -main
-      []
-      (println (day04-1)))
+  []
+  (println (day04-1))
+  (println (day04-2)))
