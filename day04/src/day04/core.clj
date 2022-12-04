@@ -29,6 +29,29 @@
 
 (def memoized-assignment-pairs (memoize input-file->assignment-pairs))
 
+; --------------------------
+; problem1
+
+(defn assignments-overlap_p1?
+  "Returns true if any of the assignment pairs overlaps the other, false otherwise."
+  [assignment-pair]
+  (let [[[a1-start a1-end] [a2-start a2-end]] assignment-pair]
+    (or (and (>= a1-start a2-start) (<= a1-end a2-end))
+        (and (>= a2-start a1-start) (<= a2-end a1-end)))))
+
+; --------------------------
+; results
+
+(defn day04
+  [overlap_fn]
+  (->> (memoized-assignment-pairs)
+       (filter overlap_fn)
+       count))
+
+(defn day04-1
+  []
+  (day04 assignments-overlap_p1?))
+
 (defn -main
       []
-      (println (memoized-assignment-pairs)))
+      (println (day04-1)))
