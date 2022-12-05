@@ -7,20 +7,21 @@
 (def input-file "resources\\input.txt")
 
 (defn input-assignment->assignment
-      "Parses an assignment from the input file into an assignment that has the form (A B)"
+      "Parses an assignment that is represented by a string into an assignment that has
+      the form (A B)."
       [assignment]
       (->> (clojure.string/split assignment #"-")
            (map #(Integer/parseInt %))))
 
 (defn input-line->assignment-pair
-      "Parses an input line into an assignment pair that has the form ((A B) (C D))"
+      "Parses an input line into an assignment pair that has the form ((A B) (C D))."
       [line]
       (->> (clojure.string/split line #",")
            (map input-assignment->assignment)))
 
 (defn input-file->assignment-pairs
       "Reads and parses the input file into a collection of assignment pairs.
-      Each pair has the form ((A B) (C D))"
+      Each pair has the form ((A B) (C D))."
       []
       (->> input-file
            slurp
@@ -32,8 +33,8 @@
 ; --------------------------
 ; problem1
 
-(defn assignments-overlap_p1?
-  "Returns true if any of the assignment pairs overlaps the other, false otherwise (p1)."
+(defn p1_assignments-overlap?
+  "Returns true if any of the assignment pairs overlaps the other, false otherwise."
   [assignment-pair]
   (let [[[a1-start a1-end] [a2-start a2-end]] assignment-pair]
     (or (and (>= a1-start a2-start) (<= a1-end a2-end))
@@ -42,8 +43,8 @@
 ; --------------------------
 ; problem2
 
-(defn assignments-overlap_p2?
-  "Returns true if any of the assignment pairs overlaps the other, false otherwise (p2)."
+(defn p2_assignments-overlap?
+  "Returns true if any of the assignment pairs overlaps the other, false otherwise."
   [assignment-pair]
   (let [[[a1-start a1-end] [a2-start a2-end]] assignment-pair]
     (or (<= a2-start a1-end a2-end)
@@ -62,11 +63,11 @@
 
 (defn day04-1
   []
-  (day04 assignments-overlap_p1?))
+  (day04 p1_assignments-overlap?))
 
 (defn day04-2
   []
-  (day04 assignments-overlap_p2?))
+  (day04 p2_assignments-overlap?))
 
 (defn -main
   []
