@@ -2,12 +2,19 @@
   (:gen-class))
 
 ; --------------------------
+; utils
+
+(defn str->int
+  [s]
+  (Integer/parseInt s))
+
+; --------------------------
 ; common
 
 (def input-file "resources\\input.txt")
 
 (defn input-file->input-str
-  "Reads the input file into a string."
+  "Reads and parses the input file into a string."
   []
   (->> input-file
        slurp
@@ -86,19 +93,18 @@
        rest))
 
 (defn extract-instruction
-  "Accepts a line that corresponds to an instruction and converts it to a seq that
+  "Accepts a line that corresponds to an instruction and converts it to a vector that
   contains 3 integers."
   [instruction-line]
   (let [instruction-tokens (clojure.string/split instruction-line #" ")
         amount-to-move (get instruction-tokens 1)
         from-stack (get instruction-tokens 3)
         to-stack (get instruction-tokens 5)]
-    (map #(Integer/parseInt %)
-         [amount-to-move from-stack to-stack])))
+    (mapv str->int [amount-to-move from-stack to-stack])))
 
 (defn input-instructions->instructions
   "Parses the input lines that correspond to the instructions into a seq of
-  seqs. Each seq represents an instruction and contains 3 integers."
+  vectors. Each vector represents an instruction and contains 3 integers."
   []
   (->> (memoized_input-file->input-str)
        instruction-lines
