@@ -15,6 +15,9 @@
 
 (def memoized_input-file->input-str (memoize input-file->input-str))
 
+; --------------------------
+; parsing input into a map that represents the stacks
+
 (defn crateChar?
   "Returns true if the given char represents a crate."
   [c]
@@ -72,6 +75,35 @@
        stack-crate-pairs
        crates-per-stack))
 
+; --------------------------
+; parsing input into a seq that represents the instructions
+
+(defn instruction-lines
+  "Accepts the input string and returns the lines that correspond to the instructions."
+  [input-str]
+  (->> input-str
+       (drop-while #(not= "" %))
+       rest))
+
+(defn extract-instruction
+  "Accepts a line that corresponds to an instruction and converts it to a seq that
+  contains 3 integers."
+  [instruction-line]
+  (let [instruction-tokens (clojure.string/split instruction-line #" ")
+        amount-to-move (get instruction-tokens 1)
+        from-stack (get instruction-tokens 3)
+        to-stack (get instruction-tokens 5)]
+    (map #(Integer/parseInt %)
+         [amount-to-move from-stack to-stack])))
+
+(defn input-instructions->instructions
+  "Parses the input lines that correspond to the instructions into a seq of
+  seqs. Each seq represents an instruction and contains 3 integers."
+  []
+  (->> (memoized_input-file->input-str)
+       instruction-lines
+       (map extract-instruction)))
+
 (defn -main
   []
-  (println (input-stack-crates->stack-crates)))
+  (println (input-instructions->instructions)))
