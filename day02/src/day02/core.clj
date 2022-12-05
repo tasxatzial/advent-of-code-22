@@ -19,7 +19,7 @@
    :scissors 2})
 
 (def num->choice
-  "Maps a number to a choice. Reverses the mapping of choice->num"
+  "Maps a number to a choice. Reverses the mapping of choice->num."
   (reverse-map choice->num))
 
 (def outcome->num
@@ -37,22 +37,24 @@
 
 (def input-file "resources\\input.txt")
 
-(defn input-file->strategy
+(defn input-file->strategy-guide
   "Reads and parses the input file into a collection of vectors.
-  Each vector represents the -encrypted- instructions in a round."
+  Each vector represents the -encrypted- instructions in a round
+  and contains 2 single-char strings."
   []
   (->> input-file
        slurp
        clojure.string/split-lines
        (map #(clojure.string/split % #" "))))
 
-(def memoized-strategy (memoize input-file->strategy))
+(def memoized-input-file->strategy-guide (memoize input-file->strategy-guide))
 
 (defn decrypt-strategy
-  "Decrypts the strategy guide using a decrypt function on each round."
-  [decrypt-round-fn]
-  (let [strategy (memoized-strategy)]
-    (map decrypt-round-fn strategy)))
+  "Decrypts the strategy guide using a decrypt function on each round.
+  Returns a seq of vectors. Each vector contains two keywords that represent
+  the players' choices."
+  [strategy decrypt-round-fn]
+  (map decrypt-round-fn strategy))
 
 (defn round-outcome
   "Returns :loss or :win or :draw depending on the outcome of the round."
@@ -74,7 +76,7 @@
 
 (defn round-score
   "Returns the total score of each round, that is, the sum of the
-  shape-score and outcome-score."
+  choice-score and outcome-score."
   [round]
   (let [my-choice (second round)
         outcome (round-outcome round)]
@@ -90,8 +92,8 @@
 ; --------------------------
 ; problem 1
 
-(def decrypt-symbol-p1
-  "Decrypts a symbol (p1)."
+(def p1_decrypt-symbol
+  "Decrypts a symbol that represents a player's choice."
   {"A" :rock,
    "X" :rock
    "B" :paper,
@@ -99,16 +101,17 @@
    "C" :scissors,
    "Z" :scissors})
 
-(defn decrypt-round-p1
-  "Decrypts a round (p1)."
+(defn p1_decrypt-round
+  "Decrypts a round that is represented by 2 single-char strings.
+  Returns a vector that contains two keywords that represent the players' choices."
   [encrypted-round]
-  (mapv decrypt-symbol-p1 encrypted-round))
+  (mapv p1_decrypt-symbol encrypted-round))
 
 ; --------------------------
 ; problem 2
 
-(def decrypt-symbol-p2
-  "Decrypts a symbol (p2)."
+(def p2_decrypt-symbol
+  "Decrypts a symbol that represents either a player's choice or an outcome."
   {"A" :rock
    "B" :paper
    "C" :scissors
@@ -117,20 +120,22 @@
    "Z" :win})
 
 (defn find-my-choice
-  "Returns what I should play based on a given round (p2)."
+  "Returns what I should play based on a round that is represented by
+  a seq of two keywords, the first one is the elf choice, the second one is
+  the round outcome."
   [round]
   (let [[elf-choice outcome] round
         elf-choice-num (choice->num elf-choice)
         outcome-num (outcome->num outcome)]
     (get num->choice (mod (+ elf-choice-num outcome-num) 3))))
 
-(defn decrypt-round-p2
-  "Decrypts a round (p2). Returns a vector that contains the choices
-  of both players."
+(defn p2_decrypt-round
+  "Decrypts a round that is represented by 2 single-char strings.
+  Returns a vector that contains two keywords that represent the player choices."
   [encrypted-round]
-  (let [decrypted-round (map #(get decrypt-symbol-p2 %) encrypted-round)
-        elf-choice (first decrypted-round)
-        my-choice (find-my-choice decrypted-round)]
+  (let [round (map #(get p2_decrypt-symbol %) encrypted-round)
+        elf-choice (first round)
+        my-choice (find-my-choice round)]
     [elf-choice my-choice]))
 
 ; --------------------------
@@ -138,16 +143,17 @@
 
 (defn day02
   [decrypt-round-fn]
-  (let [decrypted-strategy (decrypt-strategy decrypt-round-fn)]
+  (let [strategy (memoized-input-file->strategy-guide)
+        decrypted-strategy (decrypt-strategy strategy decrypt-round-fn)]
     (total-score decrypted-strategy)))
 
 (defn day02-1
   []
-  (day02 decrypt-round-p1))
+  (day02 p1_decrypt-round))
 
 (defn day02-2
   []
-  (day02 decrypt-round-p2))
+  (day02 p2_decrypt-round))
 
 (defn -main
   []
