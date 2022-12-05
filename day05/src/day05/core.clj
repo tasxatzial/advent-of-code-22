@@ -16,7 +16,7 @@
 (def memoized_input-file->input-str (memoize input-file->input-str))
 
 ; --------------------------
-; parsing input into a map that represents the stacks
+; parse input into a map that represents the stacks
 
 (defn crateChar?
   "Returns true if the given char represents a crate."
@@ -76,7 +76,7 @@
        crates-per-stack))
 
 ; --------------------------
-; parsing input into a seq that represents the instructions
+; parse input into a seq that represents the instructions
 
 (defn instruction-lines
   "Accepts the input string and returns the lines that correspond to the instructions."
@@ -103,6 +103,34 @@
   (->> (memoized_input-file->input-str)
        instruction-lines
        (map extract-instruction)))
+
+; --------------------------
+; execute instructions
+
+(defn move-crates
+  "Returns the new stacks after an instruction has been executed.
+  fn_crate-order determines the order of insertion in the target stack."
+  [stacks instruction fn_crate-order]
+  (let [amount-to-move (first instruction)
+        src-stack-num (second instruction)
+        src-stack (get stacks src-stack-num)
+        target-stack-num (last instruction)
+        target-stack (get stacks target-stack-num)
+        new-src-stack (vec (drop-last amount-to-move src-stack))
+        removed-crates (fn_crate-order (take-last amount-to-move src-stack))
+        new-target-stack (into target-stack removed-crates)]
+    (-> stacks
+        (assoc src-stack-num new-src-stack)
+        (assoc target-stack-num new-target-stack))))
+
+(defn execute-instructions
+  "Executes all instructions and returns the final stacks.
+  fn_crate-order determines the order of insertion in the target stack."
+  [instructions stacks fn_crate-order]
+  (reduce (fn [result instruction]
+            (move-crates result instruction fn_crate-order))
+          stacks
+          instructions))
 
 (defn -main
   []
