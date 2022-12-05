@@ -42,14 +42,15 @@
 ; problem 1
 
 (defn extract-rucksack-compartments
-  "Converts a string that represents a rucksack to its compartment representation:
-  A collection of two equally sized lists, each containing the items in a compartment."
+  "Converts a rucksack string to its compartment representation:
+  A collection of two equally sized seqs. Each seq contains chars that represent the
+  items in each compartment."
   [rucksack]
   (let [rucksack-size (count rucksack)]
     (partition (/ rucksack-size 2) rucksack)))
 
 (defn rucksacks->compartments
-  "Partitions the rucksacks into compartments. Returns a collection that has the
+  "Partitions the rucksacks seq into compartments. Returns a collection that has the
   following structure: (((left compartment) (right compartment)), ...)"
   []
   (->> (memoized-rucksacks)
@@ -59,7 +60,7 @@
 ; problem 2
 
 (defn rucksacks->grouped-by-3
-  "Partitions the rucksacks into groups of 3. Returns a collection that has the
+  "Partitions the rucksacks seq into groups of 3. Returns a collection that has the
   following structure: ((rucksack1 rucksack2 rucksack3), ...)"
   []
   (->> (memoized-rucksacks)
