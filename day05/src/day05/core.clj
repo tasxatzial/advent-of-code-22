@@ -132,6 +132,33 @@
           stacks
           instructions))
 
+; --------------------------
+; results
+
+(def day05
+  (let [stacks (input-stack-crates->stack-crates)
+        instructions (input-instructions->instructions)]
+    (partial execute-instructions instructions stacks)))
+
+(defn top-stack-crates
+  [stacks]
+  (->> stacks
+       (into (sorted-map))
+       vals
+       (map last)
+       (apply str)))
+
+(defn day05-1
+  []
+  (-> (day05 reverse)
+      top-stack-crates))
+
+(defn day05-2
+  []
+  (-> (day05 identity)
+      top-stack-crates))
+
 (defn -main
   []
-  (println (input-instructions->instructions)))
+  (println (day05-1))
+  (println (day05-2)))
