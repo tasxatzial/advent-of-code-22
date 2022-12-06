@@ -33,7 +33,20 @@
         (recur (rest _signal)))
       -1)))
 
+; --------------------------
+; results
+
+(defn day06-1
+  []
+  (-> (memoized_signal)
+      (find-start-marker 4)))
+
+(defn day06-2
+  []
+  (-> (memoized_signal)
+      (find-start-marker 14)))
 
 (defn -main
   []
-  (println (memoized_signal)))
+  (println (day06-1))
+  (println (day06-2)))
