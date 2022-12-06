@@ -52,9 +52,8 @@
 (defn rucksacks->compartments
   "Partitions the rucksacks seq into compartments. Returns a collection that has the
   following structure: (((left compartment) (right compartment)), ...)"
-  []
-  (->> (memoized-rucksacks)
-       (map extract-rucksack-compartments)))
+  [rucksacks]
+  (map extract-rucksack-compartments rucksacks))
 
 ; --------------------------
 ; problem 2
@@ -62,16 +61,15 @@
 (defn rucksacks->grouped-by-3
   "Partitions the rucksacks seq into groups of 3. Returns a collection that has the
   following structure: ((rucksack1 rucksack2 rucksack3), ...)"
-  []
-  (->> (memoized-rucksacks)
-       (partition 3)))
+  [rucksacks]
+  (partition 3 rucksacks))
 
 ; --------------------------
 ; results
 
 (defn day03
-  [partitioned-data]
-  (->> partitioned-data
+  [rucksacks fn_partition-rucksacks]
+  (->> (fn_partition-rucksacks rucksacks)
        (map (comp seq get-common-items))
        flatten
        (map get-item-priority)
@@ -79,11 +77,13 @@
 
 (defn day03-1
   []
-  (day03 (rucksacks->compartments)))
+  (let [rucksacks (memoized-rucksacks)]
+    (day03 rucksacks rucksacks->compartments)))
 
 (defn day03-2
   []
-  (day03 (rucksacks->grouped-by-3)))
+  (let [rucksacks (memoized-rucksacks)]
+    (day03 rucksacks rucksacks->grouped-by-3)))
 
 (defn -main
   []
