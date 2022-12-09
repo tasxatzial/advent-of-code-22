@@ -90,11 +90,30 @@
          (let [tree-row (get trees-by-row tree-row-index)]
            (tree-visible-from-edge? tree-row tree-col-index))))))
 
+(defn count-visible-trees
+  "Returns the number of trees that are visible from the edges of the grid.
+  Accepts the tree heights organized by rows and columns (a vector of vectors in both cases)
+  and a grid (a seq of coordinates represented by vectors)."
+  [trees-by-row trees-by-col grid]
+  (->> grid
+       (map #(tree-visible-from-edge? trees-by-row trees-by-col %))
+       (filter true?)
+       count))
+
 ; --------------------------
 ; results
 
+(defn day08
+  [func]
+  (let [trees-by-row (memoized_input-file->trees-by-row)
+        trees-by-col (memoized_input-file->trees-by-col)
+        grid (memoized_grid)]
+    (func trees-by-row trees-by-col grid)))
+
+(defn day08-1
+  []
+  (day08 count-visible-trees))
+
 (defn -main
   []
-  (println (memoized_input-file->trees-by-row))
-  (println (memoized_input-file->trees-by-col))
-  (println (memoized_grid)))
+  (println (day08-1)))
