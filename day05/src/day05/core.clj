@@ -6,7 +6,7 @@
 
 (defn str->int
   [s]
-  (Integer/parseInt s))
+  (Integer/parseInt (str s)))
 
 ; --------------------------
 ; common
@@ -14,7 +14,7 @@
 (def input-file "resources\\input.txt")
 
 (defn input-file->input-str
-  "Reads and parses the input file into a string."
+  "Reads the input file and splits it into lines."
   []
   (->> input-file
        slurp
@@ -37,37 +37,37 @@
   (->> pairs
        (filter #(crateChar? (second %)))))
 
-(defn crate-and-stack-lines
+(defn extract-crate-and-stack-lines
   "Accepts the input string and returns the lines that correspond to the crates-stacks data."
   [input-str]
   (->> input-str
        (take-while #(not= "" %))))
 
-(defn line-stack-crate-pairs
+(defn create-stack-crate-pairs-from-line
   "Accepts a line that represents the crates-stacks data and returns a sequence of
   its [stack char id, crate char] pairs."
   [crate-line stack-line]
   (->> (zipmap stack-line crate-line)
        filter-valid-stack-pairs))
 
-(defn stack-crate-pairs
+(defn create-stack-crate-pairs
   "Accepts a sequence of lines that correspond to the crates-stacks data
   and returns a new sequence that contains all [stack char id, crate char] pairs."
   [crate-and-stack-lines]
   (let [input-line-stack (last crate-and-stack-lines)
         input-lines-crate (butlast crate-and-stack-lines)]
     (reduce into
-            (map line-stack-crate-pairs
+            (map create-stack-crate-pairs-from-line
                  input-lines-crate (repeat input-line-stack)))))
 
-(defn crates-per-stack
+(defn get-crates-per-stack
   "Accepts a collection of (stack char id, crate char) pairs and organizes it
   into a map: Keys are integers representing the stack id, values are vectors
   that contain the crate chars for each stack."
   [stack-crate-pairs]
   (reduce (fn [result stack-crate-pair]
             (let [[stack-char crate-char] stack-crate-pair
-                  stack-num (Integer/parseInt (str stack-char))
+                  stack-num (str->int stack-char)
                   stack-crates (get result stack-num [])]
               (assoc result stack-num (conj stack-crates crate-char))))
           {} stack-crate-pairs))
@@ -78,9 +78,9 @@
   contain the crate chars for each stack."
   []
   (->> (memoized_input-file->input-str)
-       crate-and-stack-lines
-       stack-crate-pairs
-       crates-per-stack))
+       extract-crate-and-stack-lines
+       create-stack-crate-pairs
+       get-crates-per-stack))
 
 ; --------------------------
 ; parse input into a seq that represents the instructions
