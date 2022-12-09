@@ -63,6 +63,36 @@
 
 (def memoized_grid (memoize create-grid))
 
+; --------------------------
+; problem 1
+
+(defn tree-visible-from-edge?
+  "Multi-arity function.
+  1) If called with 2 args, it accepts a vector that represents a row of tree heights
+  and the index of a height in that row. Returns true if that tree is visible from
+  the edges of the row, false otherwise.
+  2) If called with 3 args, it accepts the tree heights organized by rows and columns
+  (a vector of vectors in both cases) and the index of a height (a vector that represents
+  its coordinates). Returns true if the tree in that index is visible from the edges of
+  its row or column.
+
+  Note that the 2-arity function will also work if a column is supplied."
+  ([tree-row tree-col-index]
+   (let [tree (get tree-row tree-col-index)]
+     (or (let [left-trees (subvec tree-row 0 tree-col-index)]
+           (every? #(> tree %) left-trees))
+         (let [right-trees (subvec tree-row (inc tree-col-index))]
+           (every? #(> tree %) right-trees)))))
+  ([trees-by-row trees-by-col tree-index]
+   (let [[tree-row-index tree-col-index] tree-index]
+     (or (let [tree-col (get trees-by-col tree-col-index)]
+           (tree-visible-from-edge? tree-col tree-row-index))
+         (let [tree-row (get trees-by-row tree-row-index)]
+           (tree-visible-from-edge? tree-row tree-col-index))))))
+
+; --------------------------
+; results
+
 (defn -main
   []
   (println (memoized_input-file->trees-by-row))
