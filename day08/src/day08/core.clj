@@ -132,6 +132,20 @@
      (get-directional-view-distance tree up-trees)
      (get-directional-view-distance tree bottom-trees)]))
 
+(defn get-scenic-score
+  "Returns the scenic score given a collection of viewing distances."
+  [view-distances]
+  (apply * view-distances))
+
+(defn get-highest-scenic-score
+  "Accepts the tree heights organized by rows and columns (a vector of vectors in
+  both cases) and a grid (a seq of coordinates represented by vectors).
+  Computes the highest scenic score possible for any tree."
+  [trees-by-row trees-by-col grid]
+  (->> grid
+       (map (comp get-scenic-score #(get-view-distance trees-by-row trees-by-col %)))
+       (apply max)))
+
 ; --------------------------
 ; results
 
@@ -146,6 +160,11 @@
   []
   (day08 count-visible-trees))
 
+(defn day08-2
+  []
+  (day08 get-highest-scenic-score))
+
 (defn -main
   []
-  (println (day08-1)))
+  (println (day08-1))
+  (println (day08-2)))
