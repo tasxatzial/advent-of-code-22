@@ -92,8 +92,8 @@
 
 (defn count-visible-trees
   "Returns the number of trees that are visible from the edges of the grid.
-  Accepts the tree heights organized by rows and columns (a vector of vectors in both cases)
-  and a grid (a seq of coordinates represented by vectors)."
+  Accepts the tree heights organized by rows and columns (a vector of vectors in
+  both cases) and a grid (a seq of coordinates represented by vectors)."
   [trees-by-row trees-by-col grid]
   (->> grid
        (map #(tree-visible-from-edge? trees-by-row trees-by-col %))
@@ -112,6 +112,25 @@
              (= visible-trees-count (count rest-trees)))
       visible-trees-count
       (inc visible-trees-count))))
+
+(defn get-view-distance
+  "Accepts the tree heights organized by rows and columns (a vector of vectors in
+  both cases) and the index of a height (a vector that represents its coordinates).
+  Returns a vector that contains the right, left, up, bottom viewing distances
+  (in that order)."
+  [trees-by-row trees-by-col tree-index]
+  (let [[tree-row-index tree-col-index] tree-index
+        tree (get-in trees-by-row tree-index)
+        tree-row (get trees-by-row tree-row-index)
+        tree-col (get trees-by-col tree-col-index)
+        right-trees (subvec tree-row (inc tree-col-index))
+        left-trees (or (rseq (subvec tree-row 0 tree-col-index)) [])
+        bottom-trees (subvec tree-col (inc tree-row-index))
+        up-trees (or (rseq (subvec tree-col 0 tree-row-index)) [])]
+    [(get-directional-view-distance tree right-trees)
+     (get-directional-view-distance tree left-trees)
+     (get-directional-view-distance tree up-trees)
+     (get-directional-view-distance tree bottom-trees)]))
 
 ; --------------------------
 ; results
