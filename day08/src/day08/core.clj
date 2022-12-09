@@ -1,7 +1,70 @@
 (ns day08.core
   (:gen-class))
 
+; --------------------------
+; utils
+
+(defn str->int
+  [s]
+  (Integer/parseInt (str s)))
+
+; --------------------------
+; common
+
+(def input-file "resources\\input.txt")
+
+(defn input-line->trees
+  "Parses an input line and returns a vector of integers that represent
+  the heights of the trees."
+  [line]
+  (mapv str->int line))
+
+(defn input-file->input-lines
+  "Reads and parses the input file into a seq of lines."
+  []
+  (->> input-file
+       slurp
+       clojure.string/split-lines))
+
+(def memoized_input-file->input-lines (memoize input-file->input-lines))
+
+(defn input-file->trees-by-row
+  "Reads and parses the input file into a vector of vectors. Vectors correspond to
+  rows in the input file and contain integers that represent the tree heights."
+  []
+  (->> (memoized_input-file->input-lines)
+       (mapv input-line->trees)))
+
+(def memoized_input-file->trees-by-row (memoize input-file->trees-by-row))
+
+(defn input-file->trees-by-col
+  "Reads and parses the input file into a vector of vectors. Vectors correspond to
+  columns in the input files and contain integers that represent the tree heights."
+  []
+  (let [input-lines (memoized_input-file->input-lines)
+        row-count (count input-lines)]
+    (->> (memoized_input-file->input-lines)
+         (apply interleave)
+         (map str->int)
+         (partition row-count)
+         (mapv vec))))
+
+(def memoized_input-file->trees-by-col (memoize input-file->trees-by-col))
+
+(defn create-grid
+  "Reads the input file and creates a seq that has the coordinates of each
+  tree as vectors of integers starting from [0 0]."
+  []
+  (let [trees-by-row (memoized_input-file->trees-by-row)
+        trees-by-col (memoized_input-file->trees-by-col)]
+    (for [x (range (count trees-by-row))
+          y (range (count trees-by-col))]
+      [x y])))
+
+(def memoized_grid (memoize create-grid))
+
 (defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+  []
+  (println (memoized_input-file->trees-by-row))
+  (println (memoized_input-file->trees-by-col))
+  (println (memoized_grid)))
