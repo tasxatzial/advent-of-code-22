@@ -101,6 +101,19 @@
        count))
 
 ; --------------------------
+; problem 2
+
+(defn get-directional-view-distance
+  "Accepts a tree height and a seq of the rest of the tree heights in any direction
+  (left, right, bottom, up) and returns the viewing distance from that tree."
+  [tree rest-trees]
+  (let [visible-trees-count (count (take-while #(> tree %) rest-trees))]
+    (if (and (>= tree (or (last rest-trees) 0))
+             (= visible-trees-count (count rest-trees)))
+      visible-trees-count
+      (inc visible-trees-count))))
+
+; --------------------------
 ; results
 
 (defn day08
