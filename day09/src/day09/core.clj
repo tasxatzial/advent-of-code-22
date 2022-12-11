@@ -80,12 +80,11 @@
 
 (defn execute-instruction
   "Multi-arity function.
-  1) If called with 2 arguments, it receives an instruction and a seq of knots,
-  and executes the instruction returning a vector of two elements. First one is
-  a vector of the all the positions of the tail knot and the second one is a
-  vector of the final positions of all knots.
-  2) If called with 3 arguments, it can also receive a starting vector of tail
-  positions."
+  1) If called with 2 arguments, it receives an instruction and a seq of knots
+  (head knot is first), and executes the instruction returning a vector of two elements.
+  First one is a vector of the all the positions of the tail knot and the second one
+  is a vector of the final positions of all knots.
+  2) If called with 3 arguments, it can also receive a starting vector of tail positions."
   ([instruction knots]
    (execute-instruction instruction knots []))
   ([instruction knots tail-positions]
@@ -105,9 +104,10 @@
 (defn execute-instructions
   "Multi-arity function.
   1) If called with 2 arguments, it receives a seq of instructions and the initial
-  positions of the knots. It then executes all instructions and returns the final
-  result as a vector of two elements. First one is a set of all the positions
-  of the tail knot and the second one is a vector of the final positions of all knots.
+  positions of the knots (head knot is first). It then executes all instructions and
+  returns the final result as a vector of two elements. First one is a set of all the
+  positions of the tail knot and the second one is a vector of the final positions of
+  all knots.
   2) If called with 3 arguments, it can also receive a set of the positions
   of the tail knot."
   ([instructions initial-knots]
