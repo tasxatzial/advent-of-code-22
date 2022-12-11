@@ -38,7 +38,7 @@
 (def input-file "resources\\input.txt")
 
 (defn input-file->strategy-guide
-  "Reads and parses the input file into a collection of vectors.
+  "Reads and parses the input file into a seq of vectors.
   Each vector represents the -encrypted- instructions in a round
   and contains 2 single-char strings."
   []
@@ -93,7 +93,7 @@
 ; problem 1
 
 (def p1_decrypt-symbol
-  "Decrypts a symbol that represents a player's choice."
+  "Decrypts a single character string that represents a player's choice."
   {"A" :rock,
    "X" :rock
    "B" :paper,
@@ -111,7 +111,8 @@
 ; problem 2
 
 (def p2_decrypt-symbol
-  "Decrypts a symbol that represents either a player's choice or an outcome."
+  "Decrypts a singler character string that represents either a player's choice
+  or an outcome."
   {"A" :rock
    "B" :paper
    "C" :scissors
@@ -131,7 +132,7 @@
 
 (defn p2_decrypt-round
   "Decrypts a round that is represented by 2 single-char strings.
-  Returns a vector that contains two keywords that represent the player choices."
+  Returns a vector that contains two keywords that represent the players' choices."
   [encrypted-round]
   (let [round (map #(get p2_decrypt-symbol %) encrypted-round)
         elf-choice (first round)
