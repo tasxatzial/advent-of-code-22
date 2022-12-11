@@ -119,6 +119,26 @@
        (recur rest-instructions new-knot-positions tail-positions))
      [tail-positions knots])))
 
+; --------------------------
+; results
+
+(defn day09
+  [initial-knot-positions]
+  (let [instructions (memoized_input-file->instructions)
+        [tail-positions _] (execute-instructions instructions initial-knot-positions)]
+    (count tail-positions)))
+
+(defn day09-1
+  []
+  (let [initial-knot-positions ['(0 0) '(0 0)]]
+    (day09 initial-knot-positions)))
+
+(defn day09-2
+  []
+  (let [initial-knot-positions (vec (take 10 (repeat '(0 0))))]
+    (day09 initial-knot-positions)))
+
 (defn -main
   []
-  (println (memoized_input-file->instructions)))
+  (println (time (day09-1)))
+  (println (time (day09-2))))
