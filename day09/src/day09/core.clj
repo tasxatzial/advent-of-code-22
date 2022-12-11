@@ -102,6 +102,23 @@
          (recur updated-instruction new-knots new-tail-positions))
        [tail-positions knots]))))
 
+(defn execute-instructions
+  "Multi-arity function.
+  1) If called with 2 arguments, it receives a seq of instructions and the initial
+  positions of the knots. It then executes all instructions and returns the final
+  result as a vector of two elements. First one is a set of all the positions
+  of the tail knot and the second one is a vector of the final positions of all knots.
+  2) If called with 3 arguments, it can also receive a set of the positions
+  of the tail knot."
+  ([instructions initial-knots]
+   (execute-instructions instructions initial-knots #{'(0 0)}))
+  ([instructions knots tail-positions]
+   (if-let [[instruction & rest-instructions] instructions]
+     (let [[new-tail-positions new-knot-positions] (execute-instruction instruction knots)
+           tail-positions (into tail-positions new-tail-positions)]
+       (recur rest-instructions new-knot-positions tail-positions))
+     [tail-positions knots])))
+
 (defn -main
   []
   (println (memoized_input-file->instructions)))
