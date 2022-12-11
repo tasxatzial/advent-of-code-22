@@ -20,12 +20,6 @@
        (partition-by #(= "" %))
        (filter #(not= '("") %))))
 
-(defn input-calories->int-calories
-  "Accept a seq that contains calories represented by strings and returns a seq
-  that contains the calories represented by the corresponding integers."
-  [input-calories]
-  (map str->int input-calories))
-
 (defn input-file->elves-calories
   "Reads and parses the input file into a seq of seqs.
   Each seq contains integers that represent the calories of each elf."
@@ -34,7 +28,7 @@
        slurp
        clojure.string/split-lines
        partition-input-by-elf
-       (map input-calories->int-calories)))
+       (map #(map str->int %))))
 
 (def memoized_input-file->elves-calories (memoize input-file->elves-calories))
 
