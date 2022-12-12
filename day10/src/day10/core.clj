@@ -63,6 +63,36 @@
           cmds))
 
 ; --------------------------
+; problem 2
+
+(defn get-pixel-val
+  "Returns the value of the pixel given its index and a given sprite.
+  Sprites are vectors that consist of 3 pixel indices."
+  [pixel-index sprite]
+  (if (some #(= pixel-index %) sprite)
+    \#
+    \.))
+
+(defn draw-crt
+  "Executes the given commands given an initial register value and returns
+  the output of the crt. The result is a seq of seqs, each seq has the final
+  pixel values in each line of the crt."
+  [cmds register]
+  (let [crt-length 240
+        crt-line-length 40]
+    (loop [registers (take crt-length (get-cycles-register cmds register))
+           crt []
+           pixel 0
+           cmds cmds]
+      (if (seq registers)
+        (let [register (first registers)
+              sprite [(dec register) register (inc register)]
+              new-crt (conj crt (get-pixel-val pixel sprite))
+              new-pixel (mod (inc pixel) crt-line-length)]
+          (recur (next registers) new-crt new-pixel (rest cmds)))
+        (partition crt-line-length crt)))))
+
+; --------------------------
 ; results
 
 (defn day10-1
