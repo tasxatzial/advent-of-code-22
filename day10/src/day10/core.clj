@@ -106,6 +106,16 @@
          (map * cycles)
          (apply +))))
 
+(defn day10-2
+  []
+  (let [cmds (memoized_input-file->cmds)
+        register 1
+        crt (draw-crt cmds register)
+        crt-lines (map #(apply str %) crt)]
+    (doseq [crt-line crt-lines]
+      (println crt-line))))
+
 (defn -main
   []
-  (println (day10-1)))
+  (println (day10-1))
+  (println (day10-2)))
