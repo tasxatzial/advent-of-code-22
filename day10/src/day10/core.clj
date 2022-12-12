@@ -62,6 +62,20 @@
           [register]
           cmds))
 
+; --------------------------
+; results
+
+(defn day10-1
+  []
+  (let [cmds (memoized_input-file->cmds)
+        cycles [20 60 100 140 180 220]
+        register 1
+        registers (get-cycles-register cmds register)
+        registers-at-cycles (map #(get registers %) (map dec cycles))]
+    (->> registers-at-cycles
+         (map * cycles)
+         (apply +))))
+
 (defn -main
   []
-  (println (memoized_input-file->cmds)))
+  (println (day10-1)))
