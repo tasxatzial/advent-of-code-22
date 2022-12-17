@@ -59,6 +59,16 @@
         (recur p1 [p2])))))
 
 ; --------------------------
+; problem 2
+
+; Convert the result of the comparison of two packets to an int so
+; that we can sort packets using a comparator.
+(def order->int
+  {:less -1,
+   :greater 1,
+   :equal 0})
+
+; --------------------------
 ; results
 
 (defn day13-1
@@ -70,6 +80,19 @@
          (map inc)
          (apply +))))
 
+
+(defn day13-2
+  []
+  (let [packets (memoized_input-file->packets)
+        divider-packets [[[2]] [[6]]]
+        new-packets (into packets divider-packets)
+        sorted-packets (sort #(order->int (compare-packets %1 %2)) new-packets)]
+    (->> sorted-packets
+         (keep-indexed #(if (some #{%2} divider-packets) %1))
+         (map inc)
+         (apply *))))
+
 (defn -main
   []
-  (println (day13-1)))
+  (println (day13-1))
+  (println (day13-2)))
