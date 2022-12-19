@@ -1,6 +1,6 @@
 (ns day18.core
-  (:gen-class))
-
+  (:gen-class)
+  (:require [clojure.set :as set]))
 
 ; --------------------------
 ; common
@@ -43,9 +43,21 @@
   (let [pos-neighbors (get-neighbors droplet-pos)]
     (- 6 (count (set/intersection pos-neighbors droplet)))))
 
+(defn get-surface-area
+  "Returns the total exposed area of the droplet."
+  [droplet]
+  (->> droplet
+       (map #(count-exposed-sides droplet %))
+       (apply +)))
+
 ; --------------------------
 ; results
 
+(defn day18-1
+  []
+  (let [positions (memoized_input-file->droplet-positions)]
+    (get-surface-area positions)))
+
 (defn -main
   []
-  (println (memoized_input-file->droplet-positions)))
+  (println (day18-1)))
