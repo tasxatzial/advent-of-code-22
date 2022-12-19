@@ -51,6 +51,50 @@
        (apply +)))
 
 ; --------------------------
+; problem 2
+
+(defn create-grid
+  "Returns a seq of all [x y z] int positions that are contained in the given ranges."
+  [min-x max-x min-y max-y min-z max-z]
+  (for [x (range min-x (inc max-x))
+        y (range min-y (inc max-y))
+        z (range min-z (inc max-z))]
+    [x y z]))
+
+(defn get-xyz-ranges
+  "Returns a seq of 3 vectors, each vector contains the min and max position of the
+  droplet for each of the x,y,z axes respectively."
+  [droplet]
+  (let [xs (map first droplet)
+        ys (map second droplet)
+        zs (map last droplet)
+        min-xyz (map #(apply min %) [xs ys zs])
+        max-xyz (map #(apply max %) [xs ys zs])]
+    (map vector min-xyz max-xyz)))
+
+(defn create-bounding-box
+  "Creates a bounding box around the droplet. The box is sufficiently larger than
+  the droplet so that none of its positions are adjacent to the droplet."
+  [droplet]
+  (let [xyz-ranges (get-xyz-ranges droplet)
+        [min-x min-y min-z] (map #(- % 2) (map first xyz-ranges))
+        [max-x max-y max-z] (map #(+ % 2) (map second xyz-ranges))]
+    (-> #{}
+        (into (create-grid min-x min-x min-y max-y min-z max-z))
+        (into (create-grid max-x max-x min-y max-y min-z max-z))
+        (into (create-grid min-x max-x min-y min-y min-z max-z))
+        (into (create-grid min-x max-x max-y max-y min-z max-z))
+        (into (create-grid min-x max-x min-y max-y min-z min-z))
+        (into (create-grid min-x max-x min-y max-y max-z max-z)))))
+
+(defn get-starting-position
+  "Returns a position that is always outside the droplet (one of the interior
+  corners of its bounding box)"
+  [positions]
+  (let [[[min-x _] [min-y _] [min-z _]] (get-xyz-ranges positions)]
+    [(dec min-x) (dec min-y) (dec min-z)]))
+
+; --------------------------
 ; results
 
 (defn day18-1
