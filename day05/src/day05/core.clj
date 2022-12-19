@@ -13,14 +13,14 @@
 
 (def input-file "resources\\input.txt")
 
-(defn input-file->input-str
+(defn input-file->lines
   "Reads the input file and splits it into lines."
   []
   (->> input-file
        slurp
        clojure.string/split-lines))
 
-(def memoized_input-file->input-str (memoize input-file->input-str))
+(def memoized_input-file->lines (memoize input-file->lines))
 
 ; --------------------------
 ; parse input into a map that represents the stacks
@@ -39,8 +39,8 @@
 
 (defn extract-crate-and-stack-lines
   "Accepts the input string and returns the lines that correspond to the crates-stacks data."
-  [input-str]
-  (->> input-str
+  [input-lines]
+  (->> input-lines
        (take-while #(not= "" %))))
 
 (defn create-stack-crate-pairs-from-line
@@ -77,18 +77,20 @@
   Keys are integers representing the stack id, values are vectors that
   contain the crate chars for each stack."
   []
-  (->> (memoized_input-file->input-str)
+  (->> (memoized_input-file->lines)
        extract-crate-and-stack-lines
        create-stack-crate-pairs
        get-crates-per-stack))
+
+(def memoized_input-stack-crates->stack-crates (memoize input-stack-crates->stack-crates))
 
 ; --------------------------
 ; parse input into a seq that represents the instructions
 
 (defn instruction-lines
   "Accepts the input string and returns the lines that correspond to the instructions."
-  [input-str]
-  (->> input-str
+  [input-lines]
+  (->> input-lines
        (drop-while #(not= "" %))
        rest))
 
@@ -106,9 +108,11 @@
   "Parses the input lines that correspond to the instructions into a seq of
   vectors. Each vector represents an instruction and contains 3 integers."
   []
-  (->> (memoized_input-file->input-str)
+  (->> (memoized_input-file->lines)
        instruction-lines
        (map extract-instruction)))
+
+(def memoized_input-instructions->instructions (memoize input-instructions->instructions))
 
 ; --------------------------
 ; execute instructions
@@ -141,12 +145,7 @@
 ; --------------------------
 ; results
 
-(def day05
-  (let [stacks (input-stack-crates->stack-crates)
-        instructions (input-instructions->instructions)]
-    (partial execute-instructions instructions stacks)))
-
-(defn top-stack-crates
+(defn get-top-stack-crates-as-string
   [stacks]
   (->> stacks
        (into (sorted-map))
@@ -154,15 +153,21 @@
        (map last)
        (apply str)))
 
+(defn day05
+  [fn]
+  (let [stacks (memoized_input-stack-crates->stack-crates)
+        instructions (memoized_input-instructions->instructions)]
+    (-> instructions
+        (execute-instructions stacks fn)
+        get-top-stack-crates-as-string)))
+
 (defn day05-1
   []
-  (-> (day05 reverse)
-      top-stack-crates))
+  (day05 reverse))
 
 (defn day05-2
   []
-  (-> (day05 identity)
-      top-stack-crates))
+  (day05 identity))
 
 (defn -main
   []
