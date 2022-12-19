@@ -25,6 +25,27 @@
 (def memoized_input-file->droplet-positions
   (memoize input-file->droplet-positions))
 
+(defn get-neighbors
+  "Returns a set with the 6 adjacent positions of the given position."
+  [position]
+  (let [[x y z] position]
+    #{[(inc x) y z] [(dec x) y z]
+      [x (inc y) z] [x (dec y) z]
+      [x y (inc z)] [x y (dec z)]}))
+
+; --------------------------
+; problem 1
+
+(defn count-exposed-sides
+  "Returns the number of adjacent positions to the given pos that
+  are not lava droplets. Both arguments must be sets."
+  [droplet droplet-pos]
+  (let [pos-neighbors (get-neighbors droplet-pos)]
+    (- 6 (count (set/intersection pos-neighbors droplet)))))
+
+; --------------------------
+; results
+
 (defn -main
   []
   (println (memoized_input-file->droplet-positions)))
