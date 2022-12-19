@@ -87,12 +87,28 @@
         (into (create-grid min-x max-x min-y max-y min-z min-z))
         (into (create-grid min-x max-x min-y max-y max-z max-z)))))
 
-(defn get-starting-position
+(defn get-outside-droplet-position
   "Returns a position that is always outside the droplet (one of the interior
   corners of its bounding box)"
   [positions]
   (let [[[min-x _] [min-y _] [min-z _]] (get-xyz-ranges positions)]
     [(dec min-x) (dec min-y) (dec min-z)]))
+
+(defn get-exterior-surface-area
+  "Calculates the total exterior surface area of the droplet."
+  [droplet]
+  (loop [exterior-area 0
+         visited-steam (create-bounding-box droplet)
+         steam [(get-outside-droplet-position droplet)]]
+    (if (seq steam)
+      (let [steam-neighbors (reduce into [] (map get-neighbors steam))
+            non-visited-steam-neighbors (filter #(not (contains? visited-steam %)) steam-neighbors)
+            exposed-droplet-positions (filter #(contains? droplet %) non-visited-steam-neighbors)
+            new-exterior-area (+ exterior-area (count exposed-droplet-positions))
+            new-visited-steam (into visited-steam steam)
+            new-steam (set/difference (set non-visited-steam-neighbors) (set exposed-droplet-positions))]
+        (recur new-exterior-area new-visited-steam new-steam))
+      exterior-area)))
 
 ; --------------------------
 ; results
@@ -102,6 +118,12 @@
   (let [positions (memoized_input-file->droplet-positions)]
     (get-surface-area positions)))
 
+(defn day18-2
+  []
+  (let [positions (memoized_input-file->droplet-positions)]
+    (get-exterior-surface-area positions)))
+
 (defn -main
   []
-  (println (day18-1)))
+  (println (day18-1))
+  (println (day18-2)))
