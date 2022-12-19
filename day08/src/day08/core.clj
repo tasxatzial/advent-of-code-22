@@ -35,8 +35,6 @@
   (->> (memoized_input-file->input-lines)
        (mapv input-line->trees)))
 
-(def memoized_input-file->trees-by-row (memoize input-file->trees-by-row))
-
 (defn input-file->trees-by-col
   "Reads and parses the input file into a vector of vectors. Vectors correspond to
   columns in the input files and contain integers that represent the tree heights."
@@ -49,19 +47,15 @@
          (partition row-count)
          (mapv vec))))
 
-(def memoized_input-file->trees-by-col (memoize input-file->trees-by-col))
-
 (defn create-grid
   "Reads the input file and creates a seq that has the coordinates of each
   tree as vectors of integers starting from [0 0]."
   []
-  (let [trees-by-row (memoized_input-file->trees-by-row)
-        trees-by-col (memoized_input-file->trees-by-col)]
+  (let [trees-by-row (input-file->trees-by-row)
+        trees-by-col (input-file->trees-by-col)]
     (for [x (range (count trees-by-row))
           y (range (count trees-by-col))]
       [x y])))
-
-(def memoized_grid (memoize create-grid))
 
 ; --------------------------
 ; problem 1
@@ -151,9 +145,9 @@
 
 (defn day08
   [func]
-  (let [trees-by-row (memoized_input-file->trees-by-row)
-        trees-by-col (memoized_input-file->trees-by-col)
-        grid (memoized_grid)]
+  (let [trees-by-row (input-file->trees-by-row)
+        trees-by-col (input-file->trees-by-col)
+        grid (create-grid)]
     (func trees-by-row trees-by-col grid)))
 
 (defn day08-1
