@@ -126,6 +126,26 @@
         (assoc fail-test-target-index fail-test-updated-target)
         (assoc monkey-index updated-monkey))))
 
+(defn get-monkeys-after-one-round
+  "Returns the monkeys after one round."
+  [monkeys]
+  (reduce (fn [result [index _]]
+            (get-monkeys-after-one-step result index))
+          monkeys
+          monkeys))
+
+(defn get-monkeys-after-all-rounds
+  "Returns the monkeys after all rounds. Accepts a function that decreases the
+  worry level of an item before it is thrown."
+  [monkeys rounds fn_reduce-item]
+  (let [monkeys (initialize-inspection monkeys fn_reduce-item)]
+    (loop [monkeys monkeys
+           rounds rounds]
+      (if (zero? rounds)
+        monkeys
+        (let [new-monkeys (get-monkeys-after-one-round monkeys)]
+          (recur new-monkeys (dec rounds)))))))
+
 ; --------------------------
 ; results
 
