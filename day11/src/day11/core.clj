@@ -76,6 +76,20 @@
 (def memoized_input-file->monkeys (memoize input-file->monkeys))
 
 ; --------------------------
+; rounds
+
+(defn initialize-inspection
+  "Updates each of the monkeys with the following keys:
+  :inspected --> the number of inspected items
+  :fn_reduce-item --> function that reduces the item before it is thrown"
+  [monkeys fn_reduce-item]
+  (reduce (fn [res [index monkey]]
+            (let [updated-monkey (assoc monkey :inspected 0 :fn_reduce-item fn_reduce-item)]
+              (assoc res index updated-monkey)))
+          {}
+          monkeys))
+
+; --------------------------
 ; results
 
 (defn -main
