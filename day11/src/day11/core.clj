@@ -149,7 +149,28 @@
 ; --------------------------
 ; results
 
+(defn get-monkey-business
+  [monkeys]
+  (let [examined (map #(:inspected (second %)) monkeys)]
+    (->> examined
+         (sort >)
+         (take 2)
+         (apply *))))
+
+(defn day11-1
+  []
+  (-> (memoized_input-file->monkeys)
+      (get-monkeys-after-all-rounds 20 #(quot % 3))
+      get-monkey-business))
+
+(defn day11-2
+  []
+  (-> (memoized_input-file->monkeys)
+      (get-monkeys-after-all-rounds 10000 #(mod % 9699690))
+      get-monkey-business))
+
 (defn -main
   []
-  (println (memoized_input-file->monkeys) ))
+  (println (time (day11-1)))
+  (println (time (day11-2))))
 
