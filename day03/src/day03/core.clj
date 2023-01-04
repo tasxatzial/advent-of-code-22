@@ -6,7 +6,7 @@
 ; utils
 
 (defn upperCase?
-  "Returns true if the given letter is in upper case, false otherwise."
+  "Returns true if the given letter char is in upper case, false otherwise."
   [letter]
   (<= 65 (int letter) 90))
 
@@ -32,7 +32,7 @@
 (def memoized-rucksacks (memoize input-file->rucksacks))
 
 (defn get-item-priority
-  "Returns the priority of an item."
+  "Returns the priority of an item. An item is represented by a letter char."
   [item]
   (if (upperCase? item)
     (- (int item) 38)
@@ -51,7 +51,7 @@
 
 (defn rucksacks->compartments
   "Partitions a seq of rucksacks into compartments. Returns a seq that has the
-  following structure: (((left compartment) (right compartment)), ...)"
+  following structure: (((left compartment chars) (right compartment chars)), ...)"
   [rucksacks]
   (map extract-rucksack-compartments rucksacks))
 
