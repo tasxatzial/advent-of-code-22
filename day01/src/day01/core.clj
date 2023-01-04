@@ -17,8 +17,8 @@
   "Partitions the input string by the calories of each elf."
   [input-str]
   (->> input-str
-       (partition-by #(= "" %))
-       (filter #(not= '("") %))))
+       (partition-by #{""})
+       (remove #{[""]})))
 
 (defn input-file->elves-calories
   "Reads and parses the input file into a seq of seqs.
