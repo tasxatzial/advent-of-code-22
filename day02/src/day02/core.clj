@@ -12,6 +12,11 @@
         v (map second key-val)]
     (zipmap v k)))
 
+; --------------------------
+; common
+
+(def input-file "resources\\input.txt")
+
 (def choice->num
   "Maps a choice to a number."
   {:rock 0
@@ -31,11 +36,6 @@
 (def num->outcome
   "Maps a number to an outcome. Reverses the mapping of outcome->num."
   (reverse-map outcome->num))
-
-; --------------------------
-; common
-
-(def input-file "resources\\input.txt")
 
 (defn input-file->strategy-guide
   "Reads and parses the input file into a seq of vectors.
@@ -57,7 +57,8 @@
   (map decrypt-round-fn strategy))
 
 (defn round-outcome
-  "Returns :loss or :win or :draw depending on the outcome of the round."
+  "Returns :loss or :win or :draw depending on the outcome of the round. A round
+  is represented by two keywords that denote the players' choices."
   [round]
   (let [[elf-choice my-choice] (map choice->num round)]
     (get num->outcome (mod (- my-choice elf-choice) 3))))
@@ -76,14 +77,17 @@
 
 (defn round-score
   "Returns the total score of each round, that is, the sum of the
-  choice-score and outcome-score."
+  choice-score and outcome-score. A round is represented by a vector
+  that has the choices of both players."
   [round]
   (let [my-choice (second round)
         outcome (round-outcome round)]
     (+ (outcome->score outcome) (choice->score my-choice))))
 
 (defn total-score
-  "Calculates the total score when all rounds have ended."
+  "Calculates the total score when all rounds have ended. The strategy
+  is a seq of 2 element vectors that have the choices of both players in
+  each round."
   [strategy]
   (->> strategy
        (map round-score)
@@ -111,7 +115,7 @@
 ; problem 2
 
 (def p2_decrypt-symbol
-  "Decrypts a singler character string that represents either a player's choice
+  "Decrypts a single character string that represents either a player's choice
   or an outcome."
   {"A" :rock
    "B" :paper
@@ -121,9 +125,8 @@
    "Z" :win})
 
 (defn find-my-choice
-  "Returns what I should play based on a round that is represented by
-  a seq of two keywords, the first one is the elf choice, the second one is
-  the round outcome."
+  "Returns what I should play when a round is represented by
+  the elf choice and the round outcome."
   [round]
   (let [[elf-choice outcome] round
         elf-choice-num (choice->num elf-choice)
