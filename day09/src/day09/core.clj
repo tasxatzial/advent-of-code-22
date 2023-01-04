@@ -8,15 +8,15 @@
   [s]
   (Integer/parseInt (str s)))
 
-(defn reduce-repeatedly
-  "Reduces the given collection given a 2-arity function and an initial value.
-  Traverses coll and for each element it evaluates f(R, el) using as R the
-  result from the previous step. The given val is used to initialize R.
-  It short-circuits if the result f(R, el) is the same as el."
-  [f val coll]
+(defn seq-reductions
+  "Similar functionality to the built-in function 'reductions' with two exceptions:
+  1) The initial value is not included in the result.
+  2) Short-circuits if at any step f(last item in result, el) is the same as el.
+  In this case, the rest of the coll is added to the final result."
+  [f init coll]
   (loop [new-coll []
          coll coll
-         init val]
+         init init]
     (if-let [curr (first coll)]
       (let [res (f init curr)]
         (if (= res curr)
@@ -51,8 +51,9 @@
 
 (defn knot-distance->move-vector
   "Given the distance vector (V2-V1) between two subsequent knots, it returns the
-  vector that needs to be added to V1 so that it touches V2.
-  The numbers in the distance vector should be integers with absolute value <= 2."
+  vector that needs to be added to V1 so that moves right next to V2.
+  Based on the problem description, the numbers in the distance vector are expected
+  to be integers with absolute value <= 2."
   [[x y]]
   (if (and (not= x -2) (not= x 2) (not= y -2) (not= y 2))
     '(0 0)
@@ -69,8 +70,8 @@
       :R (list (inc x) y))))
 
 (defn move-knot
-  "Moves the given knot towards the target knot and returns its new position.
-  Both knots must be subsequent."
+  "Moves the given knot so that the touches the target knot and returns
+  its new position. Knots must be subsequent."
   [target-knot knot]
   (let [[x-to-move y-to-move] knot
         [x-moved y-moved] target-knot
@@ -80,9 +81,9 @@
 
 (defn execute-instruction
   "Multi-arity function.
-  1) If called with 2 arguments, it receives an instruction and a seq of knots
+  1) If called with 2 arguments, it receives an instruction and a vector of knots
   (head knot is first), and executes the instruction returning a vector of two elements.
-  First one is a vector of the all the positions of the tail knot and the second one
+  First one is a vector of all the positions of the tail knot and the second one
   is a vector of the final positions of all knots.
   2) If called with 3 arguments, it can also receive a starting vector of tail positions."
   ([instruction knots]
@@ -93,7 +94,7 @@
          rest-knots (rest knots)]
      (if (pos? move-amount)
        (let [new-head (move-head head direction)
-             new-rest-knots (reduce-repeatedly move-knot new-head rest-knots)
+             new-rest-knots (seq-reductions move-knot new-head rest-knots)
              new-knots (into [new-head] new-rest-knots)
              new-tail (last new-knots)
              new-tail-positions (conj tail-positions new-tail)
@@ -103,20 +104,20 @@
 
 (defn execute-instructions
   "Multi-arity function.
-  1) If called with 2 arguments, it receives a seq of instructions and the initial
-  positions of the knots (head knot is first). It then executes all instructions and
-  returns the final result as a vector of two elements. First one is a set of all the
-  positions of the tail knot and the second one is a vector of the final positions of
-  all knots.
-  2) If called with 3 arguments, it can also receive a set of the positions
+  1) If called with 2 arguments, it receives a seq of instructions and a vector of
+  knots (head knot is first), and executes all instructions returning the final result
+  as a vector of two elements. First one is a set of all the positions of the tail knot
+  and the second one is a vector of the final positions of all knots.
+  2) If called with 3 arguments, it can also receive a starting set of the positions
   of the tail knot."
   ([instructions initial-knots]
    (execute-instructions instructions initial-knots #{'(0 0)}))
   ([instructions knots tail-positions]
-   (if-let [[instruction & rest-instructions] instructions]
-     (let [[new-tail-positions new-knot-positions] (execute-instruction instruction knots)
+   (if (seq instructions)
+     (let [instruction (first instructions)
+           [new-tail-positions new-knot-positions] (execute-instruction instruction knots)
            tail-positions (into tail-positions new-tail-positions)]
-       (recur rest-instructions new-knot-positions tail-positions))
+       (recur (rest instructions) new-knot-positions tail-positions))
      [tail-positions knots])))
 
 ; --------------------------
@@ -130,13 +131,11 @@
 
 (defn day09-1
   []
-  (let [initial-knot-positions ['(0 0) '(0 0)]]
-    (day09 initial-knot-positions)))
+  (day09 ['(0 0) '(0 0)]))
 
 (defn day09-2
   []
-  (let [initial-knot-positions (vec (take 10 (repeat '(0 0))))]
-    (day09 initial-knot-positions)))
+  (day09 (vec (take 10 (repeat '(0 0))))))
 
 (defn -main
   []
