@@ -38,21 +38,21 @@
        (filter #(crateChar? (second %)))))
 
 (defn extract-crate-and-stack-lines
-  "Accepts the input string and returns the lines that correspond to the crates-stacks data."
+  "Accepts a seq of lines and returns those that correspond to the crates-stacks data."
   [input-lines]
   (->> input-lines
        (take-while #(not= "" %))))
 
 (defn create-stack-crate-pairs-from-line
-  "Accepts a line that represents the crates-stacks data and returns a sequence of
-  its [stack char id, crate char] pairs."
+  "Takes the lines that represent crates-stacks data and returns a sequence of
+  [stack char id, crate char] pairs."
   [crate-line stack-line]
   (->> (zipmap stack-line crate-line)
        filter-valid-stack-pairs))
 
 (defn create-stack-crate-pairs
-  "Accepts a sequence of lines that correspond to the crates-stacks data
-  and returns a new sequence that contains all [stack char id, crate char] pairs."
+  "Accepts a seq of lines that correspond to the crates-stacks data
+  and returns a seq that contains all (stack char id, crate char) pairs."
   [crate-and-stack-lines]
   (let [input-line-stack (last crate-and-stack-lines)
         input-lines-crate (butlast crate-and-stack-lines)]
@@ -61,7 +61,7 @@
                  input-lines-crate (repeat input-line-stack)))))
 
 (defn get-crates-per-stack
-  "Accepts a collection of (stack char id, crate char) pairs and organizes it
+  "Accepts a seq of (stack char id, crate char) pairs and organizes it
   into a map: Keys are integers representing the stack id, values are vectors
   that contain the crate chars for each stack."
   [stack-crate-pairs]
@@ -73,9 +73,9 @@
           {} stack-crate-pairs))
 
 (defn input-stack-crates->stack-crates
-  "Parses the input lines that represent the stack-crate data into a map:
-  Keys are integers representing the stack id, values are vectors that
-  contain the crate chars for each stack."
+  "Reads and parses the input file into a map. Keys are integers representing the stack id,
+  values are vectors that contain the crate chars for each stack. Last item in each vector
+  represents the top of the stack."
   []
   (->> (memoized_input-file->lines)
        extract-crate-and-stack-lines
@@ -88,14 +88,14 @@
 ; parse input into a seq that represents the instructions
 
 (defn instruction-lines
-  "Accepts the input string and returns the lines that correspond to the instructions."
+  "Accepts a seq of lines and returns those that correspond to the instructions."
   [input-lines]
   (->> input-lines
        (drop-while #(not= "" %))
        rest))
 
 (defn extract-instruction
-  "Accepts a line that corresponds to an instruction and converts it to a vector that
+  "Accepts a line that corresponds to an instruction and returns a vector that
   contains 3 integers."
   [instruction-line]
   (let [instruction-tokens (clojure.string/split instruction-line #" ")
@@ -105,8 +105,8 @@
     (mapv str->int [amount-to-move from-stack to-stack])))
 
 (defn input-instructions->instructions
-  "Parses the input lines that correspond to the instructions into a seq of
-  vectors. Each vector represents an instruction and contains 3 integers."
+  "Reads and parses the input file into a seq of vectors. Each vector represents an
+  instruction and contains 3 integers."
   []
   (->> (memoized_input-file->lines)
        instruction-lines
@@ -154,11 +154,11 @@
        (apply str)))
 
 (defn day05
-  [fn]
+  [fn_crate-order]
   (let [stacks (memoized_input-stack-crates->stack-crates)
         instructions (memoized_input-instructions->instructions)]
     (-> instructions
-        (execute-instructions stacks fn)
+        (execute-instructions stacks fn_crate-order)
         get-top-stack-crates-as-string)))
 
 (defn day05-1
