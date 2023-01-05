@@ -14,7 +14,7 @@
 (def input-file "resources\\input.txt")
 
 (defn input-line->cmd
-  "Parses an input line into a command. Returns a vector, it's first element is a
+  "Parses an input line into a command. Returns a vector, its first element is a
   keyword that describes the command, and the second element, if it exists,
   is an integer."
   [line]
@@ -34,31 +34,31 @@
 
 (def memoized_input-file->cmds (memoize input-file->cmds))
 
-(def get-cycle-cost
+(def cmd-cycle-cost
   {:addx 2
    :noop 1})
 
 (defn exec-cmd
-  "Accepts a vector the represents a command and the current value of the
-  register. Returns a vector of all the register values that have been
-  generated when the command is completed."
+  "Accepts a vector that represents a command and the current value of the
+  register. Returns a vector that contains the values of the register in each
+  of the cycles that are required for command execution."
   [cmd register]
   (let [[op val] cmd
-        cycle-cost (get-cycle-cost op)
-        first-registers (vec (take (dec cycle-cost) (repeat register)))]
+        cycle-cost (cmd-cycle-cost op)
+        initial-registers (vec (take (dec cycle-cost) (repeat register)))]
     (case op
-      :addx (conj first-registers (+ val register))
-      (conj first-registers register))))
+      :addx (conj initial-registers (+ val register))
+      (conj initial-registers register))))
 
-(defn get-cycles-register
-  "Accepts a vector of commands and an initial register. Returns a vector
-  that has the value of the register in each cycle when all commands
-  have been completed. Includes the initial value of the register."
+(defn exec-cmds
+  "Accepts a vector of commands and an initial register. Returns a vector that
+  contains the values of the register in each of the cycles that are required for
+  executing all commands."
   [cmds register]
   (reduce (fn [result cmd]
-            (let [last-register (last result)
-                  new-registers (exec-cmd cmd last-register)]
-              (into result new-registers)))
+            (->> (last result)
+                 (exec-cmd cmd)
+                 (into result)))
           [register]
           cmds))
 
@@ -66,31 +66,32 @@
 ; problem 2
 
 (defn get-pixel-val
-  "Returns the value of the pixel given its index and a given sprite.
-  Sprites are vectors that consist of 3 pixel indices."
+  "Returns the value of the pixel given its index and a sprite vector
+  of 3 pixel indices."
   [pixel-index sprite]
   (if (some #(= pixel-index %) sprite)
     \#
     \.))
 
 (defn draw-crt
-  "Executes the given commands given an initial register value and returns
-  the output of the crt. The result is a seq of seqs, each seq has the final
-  pixel values in each line of the crt."
+  "Executes all commands given an initial register value. Returns
+  the output of the crt as a seq of seqs. Each seq corresponds to
+  the final pixel values in a crt line."
   [cmds register]
   (let [crt-length 240
-        crt-line-length 40]
-    (loop [registers (take crt-length (get-cycles-register cmds register))
+        line-length 40
+        registers (exec-cmds cmds register)]
+    (loop [registers (take crt-length registers)
            crt []
-           pixel 0
+           pixel-idx 0
            cmds cmds]
       (if (seq registers)
         (let [register (first registers)
               sprite [(dec register) register (inc register)]
-              new-crt (conj crt (get-pixel-val pixel sprite))
-              new-pixel (mod (inc pixel) crt-line-length)]
-          (recur (next registers) new-crt new-pixel (rest cmds)))
-        (partition crt-line-length crt)))))
+              new-crt (conj crt (get-pixel-val pixel-idx sprite))
+              new-pixel-idx (mod (inc pixel-idx) line-length)]
+          (recur (rest registers) new-crt new-pixel-idx (rest cmds)))
+        (partition line-length crt)))))
 
 ; --------------------------
 ; results
@@ -99,8 +100,8 @@
   []
   (let [cmds (memoized_input-file->cmds)
         cycles [20 60 100 140 180 220]
-        register 1
-        registers (get-cycles-register cmds register)
+        init-register 1
+        registers (exec-cmds cmds init-register)
         registers-at-cycles (map #(get registers %) (map dec cycles))]
     (->> registers-at-cycles
          (map * cycles)
@@ -109,11 +110,10 @@
 (defn day10-2
   []
   (let [cmds (memoized_input-file->cmds)
-        register 1
-        crt (draw-crt cmds register)
-        crt-lines (map #(apply str %) crt)]
+        init-register 1
+        crt-lines (draw-crt cmds init-register)]
     (doseq [crt-line crt-lines]
-      (println crt-line))))
+      (println (apply str crt-line)))))
 
 (defn -main
   []
