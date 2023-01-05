@@ -7,13 +7,14 @@
 (def input-file "resources\\input.txt")
 
 (defn input-line->packet
-  "Parses an input line into a vector."
+  "Parses an input line into the corresponding vector form (a packet)."
   [line]
   (when (not= "" line)
     (read-string line)))
 
 (defn input-file->packets
-  "Reads and parses the input file into a seq of packets (vectors)."
+  "Reads and parses the input file into a seq of packets. The form of each
+  packet is described in the function input-line->packet."
   []
   (->> input-file
        slurp
@@ -74,12 +75,10 @@
 (defn day13-1
   []
   (let [packet-pairs (partition 2 (memoized_input-file->packets))
-        pairs-orders (map #(apply compare-packets %) packet-pairs)]
-    (->> pairs-orders
-         (keep-indexed #(if (= :less %2) %1))
-         (map inc)
+        pairs-comparison (map #(apply compare-packets %) packet-pairs)]
+    (->> pairs-comparison
+         (keep-indexed #(if (= :less %2) (inc %1)))
          (apply +))))
-
 
 (defn day13-2
   []
@@ -88,8 +87,7 @@
         new-packets (into packets divider-packets)
         sorted-packets (sort #(order->int (compare-packets %1 %2)) new-packets)]
     (->> sorted-packets
-         (keep-indexed #(if (some #{%2} divider-packets) %1))
-         (map inc)
+         (keep-indexed #(if (some #{%2} divider-packets) (inc %1)))
          (apply *))))
 
 (defn -main
