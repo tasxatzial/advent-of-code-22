@@ -26,11 +26,11 @@
   "Finds the signal index (starting from 1) of the first start marker.
   Returns -1 if a start marker is not found."
   [signal packet-length]
-  (loop [_signal signal]
-    (if (first _signal)
-      (if (start-marker? (take packet-length _signal) packet-length)
-        (+ (count signal) (- (count _signal)) packet-length)
-        (recur (rest _signal)))
+  (loop [signal- signal]
+    (if (first signal-)
+      (if (start-marker? (take packet-length signal-) packet-length)
+        (+ (count signal) (- (count signal-)) packet-length)
+        (recur (rest signal-)))
       -1)))
 
 ; --------------------------
