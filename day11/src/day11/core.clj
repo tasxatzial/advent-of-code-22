@@ -11,12 +11,12 @@
   (Integer/parseInt (str s)))
 
 (defn get-number
-  "Extracts a number (int) from a string."
+  "Extracts a number from a string and returns an int."
   [s]
   (str->int (re-find #"\d+" s)))
 
 (defn get-numbers
-  "Extracts a vector of numbers (int) from a string."
+  "Extracts all numbers from a string and returns a vector of ints."
   [s]
   (mapv str->int (re-seq #"\d+" s)))
 
@@ -30,7 +30,7 @@
   (->> input-file
        slurp
        (clojure.string/split-lines)
-       (filter #(not= "" %))
+       (remove #(= "" %))
        (partition 6)))
 
 (defn get-operation-fn
@@ -50,7 +50,7 @@
 (defn monkey-lines->monkey
   "Parses a seq that has the lines for a single monkey into a map. Each map contains:
   :index --> monkey id (int)
-  :items --> start items (vector of int)
+  :items --> starting items (vector of int)
   :fn_operation --> operation function
   :fn_test --> test function (int -> boolean)
   :pass-test-target --> id of the target monkey if test returns true
@@ -76,7 +76,6 @@
 (def memoized_input-file->monkeys (memoize input-file->monkeys))
 
 ; --------------------------
-; rounds
 
 (defn initialize-inspection
   "Updates each of the monkeys with the following keys:
@@ -99,8 +98,7 @@
         (assoc :inspected (+ (count items) inspected)))))
 
 (defn get-monkeys-after-one-step
-  "Returns the monkeys after the monkey that has the given index has thrown
-  all its items."
+  "Returns the monkeys after monkey-index has thrown all its items."
   [monkeys monkey-index]
   (let [monkey (get monkeys monkey-index)
         updated-monkey (get-monkey-after-one-step monkey)
@@ -108,18 +106,18 @@
         fn_test (:fn_test monkey)
         fn_reduce-item (:fn_reduce-item monkey)
         throw-items (map (comp fn_reduce-item fn_operation) (:items monkey))
-        grouped-throw-items (group-by fn_test throw-items)
+        grouped-by-test-throw-items (group-by fn_test throw-items)
         fail-test-target-index (get monkey :fail-test-target)
         fail-test-target (get monkeys fail-test-target-index)
         fail-test-target-items (:items fail-test-target)
-        fail-test-throw-items (get grouped-throw-items false)
-        fail-test-target-updated-items (into fail-test-target-items fail-test-throw-items)
+        fail-test-received-items (get grouped-by-test-throw-items false)
+        fail-test-target-updated-items (into fail-test-target-items fail-test-received-items)
         fail-test-updated-target (assoc fail-test-target :items fail-test-target-updated-items)
         pass-test-target-index (get monkey :pass-test-target)
         pass-test-target (get monkeys pass-test-target-index)
         pass-test-target-items (:items pass-test-target)
-        pass-test-throw-items (get grouped-throw-items true)
-        pass-test-target-updated-items (into pass-test-target-items pass-test-throw-items)
+        pass-test-received-items (get grouped-by-test-throw-items true)
+        pass-test-target-updated-items (into pass-test-target-items pass-test-received-items)
         pass-test-updated-target (assoc pass-test-target :items pass-test-target-updated-items)]
     (-> monkeys
         (assoc pass-test-target-index pass-test-updated-target)
@@ -146,31 +144,31 @@
         (let [new-monkeys (get-monkeys-after-one-round monkeys)]
           (recur new-monkeys (dec rounds)))))))
 
+(defn get-monkey-business-level
+  "Returns the monkey business level."
+  [monkeys]
+  (->> (map #(:inspected (second %)) monkeys)
+       (sort >)
+       (take 2)
+       (apply *)))
+
 ; --------------------------
 ; results
-
-(defn get-monkey-business
-  [monkeys]
-  (let [examined (map #(:inspected (second %)) monkeys)]
-    (->> examined
-         (sort >)
-         (take 2)
-         (apply *))))
 
 (defn day11-1
   []
   (-> (memoized_input-file->monkeys)
       (get-monkeys-after-all-rounds 20 #(quot % 3))
-      get-monkey-business))
+      get-monkey-business-level))
 
+;; 9699690 is the product of all numbers in the divisible by test
 (defn day11-2
   []
   (-> (memoized_input-file->monkeys)
       (get-monkeys-after-all-rounds 10000 #(mod % 9699690))
-      get-monkey-business))
+      get-monkey-business-level))
 
 (defn -main
   []
   (println (time (day11-1)))
   (println (time (day11-2))))
-
