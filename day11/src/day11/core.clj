@@ -48,7 +48,7 @@
     #(integer? (/ % num))))
 
 (defn monkey-lines->monkey
-  "Parses a seq that has the lines for a single monkey into a map. Each map contains:
+  "Parses a seq that has the lines for a single monkey into a map that contains:
   :index --> monkey id (int)
   :items --> starting items (vector of int)
   :fn_operation --> operation function
@@ -98,7 +98,7 @@
         (assoc :inspected (+ (count items) inspected)))))
 
 (defn get-monkeys-after-one-step
-  "Returns the monkeys after monkey-index has thrown all its items."
+  "Returns the monkeys after the monkey with the given index has thrown all its items."
   [monkeys monkey-index]
   (let [monkey (get monkeys monkey-index)
         updated-monkey (get-monkey-after-one-step monkey)

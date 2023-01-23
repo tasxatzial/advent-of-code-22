@@ -7,7 +7,7 @@
 (def input-file "resources\\input.txt")
 
 (defn input-line->packet
-  "Parses an input line into the corresponding vector form (a packet)."
+  "Parses an input line into the corresponding vector form."
   [line]
   (when (not= "" line)
     (read-string line)))

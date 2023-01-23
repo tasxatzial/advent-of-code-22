@@ -44,8 +44,8 @@
 ; problem 1
 
 (defn count-exposed-sides
-  "Returns the number of the sides of the given position that are not
-  droplets. Both arguments must be sets."
+  "Returns the number of adjacent positions of the given position that are
+  not droplets. Both arguments must be sets."
   [droplet position]
   (let [pos-neighbors (get-neighbors position)]
     (- 6 (count (set/intersection pos-neighbors droplet)))))
@@ -99,7 +99,7 @@
 
 (defn get-droplet-external-position
   "Returns a position that is always outside the droplet. More specifically,
-  it is one of the interior corners of its bounding box. By design, this position
+  it is one of the interior corners of its bounding box. This position
   is never adjacent to the droplet."
   [positions]
   (let [[[min-x _] [min-y _] [min-z _]] (get-droplet-ranges positions)]

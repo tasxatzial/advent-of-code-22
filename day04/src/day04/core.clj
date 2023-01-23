@@ -7,21 +7,22 @@
 (def input-file "resources\\input.txt")
 
 (defn input-assignment->assignment
-  "Parses an assignment that is represented by the string A-B into an assignment that has
-  the form (A B)."
+  "Parses an assignment that is represented by the string A-B into a seq
+   of two integers A and B."
   [assignment]
   (->> (clojure.string/split assignment #"-")
        (map #(Integer/parseInt %))))
 
 (defn input-line->assignment-pair
-  "Parses an input line into an assignment pair that has the form ((A B) (C D))."
+  "Parses an input line into a seq of two assignments. The form of each
+  assignment is described in function input-assignment->assignment."
   [line]
   (->> (clojure.string/split line #",")
        (map input-assignment->assignment)))
 
 (defn input-file->assignment-pairs
   "Reads and parses the input file into a seq of assignment pairs.
-  Each pair has the form ((A B) (C D))."
+  The form of each pair is described in function input-line->assignment-pair."
   []
   (->> input-file
        slurp

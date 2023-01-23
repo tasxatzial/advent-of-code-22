@@ -38,21 +38,21 @@
        (filter #(crateChar? (second %)))))
 
 (defn extract-crate-and-stack-lines
-  "Accepts a seq of lines and returns those that correspond to the crates-stacks data."
+  "Accepts a collection of lines and returns those that correspond to the crates-stacks data."
   [input-lines]
   (->> input-lines
        (take-while #(not= "" %))))
 
 (defn create-stack-crate-pairs-from-line
-  "Takes the lines that represent crates-stacks data and returns a sequence of
+  "Takes two lines that represent crates-stacks data and returns a sequence of
   [stack char id, crate char] pairs."
   [crate-line stack-line]
   (->> (zipmap stack-line crate-line)
        filter-valid-stack-pairs))
 
 (defn create-stack-crate-pairs
-  "Accepts a seq of lines that correspond to the crates-stacks data
-  and returns a seq that contains all (stack char id, crate char) pairs."
+  "Accepts a collection of lines that correspond to the crates-stacks data
+  and returns a seq that contains all [stack char id, crate char] pairs."
   [crate-and-stack-lines]
   (let [input-line-stack (last crate-and-stack-lines)
         input-lines-crate (butlast crate-and-stack-lines)]
@@ -61,7 +61,7 @@
                  input-lines-crate (repeat input-line-stack)))))
 
 (defn get-crates-per-stack
-  "Accepts a seq of (stack char id, crate char) pairs and organizes it
+  "Accepts a seq of [stack char id, crate char]  pairs and organizes it
   into a map: Keys are integers representing the stack id, values are vectors
   that contain the crate chars for each stack."
   [stack-crate-pairs]
@@ -70,7 +70,8 @@
                   stack-num (str->int stack-char)
                   stack-crates (get result stack-num [])]
               (assoc result stack-num (conj stack-crates crate-char))))
-          {} stack-crate-pairs))
+          {}
+          stack-crate-pairs))
 
 (defn input-stack-crates->stack-crates
   "Reads and parses the input file into a map. Keys are integers representing the stack id,
@@ -88,7 +89,7 @@
 ; parse input into a seq that represents the instructions
 
 (defn instruction-lines
-  "Accepts a seq of lines and returns those that correspond to the instructions."
+  "Accepts a collection of lines and returns those that correspond to the instructions."
   [input-lines]
   (->> input-lines
        (drop-while #(not= "" %))

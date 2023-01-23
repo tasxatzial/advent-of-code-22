@@ -12,7 +12,8 @@
   "Similar functionality to the built-in function 'reductions' with two exceptions:
   1) The initial value is not included in the result.
   2) Short-circuits if at any step f(last item in result, el) is the same as el.
-  In this case, the rest of the coll is added to the final result."
+  In this case, the rest of the coll is added to the final result.
+  Returns a vector."
   [f init coll]
   (loop [new-coll []
          coll coll

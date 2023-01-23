@@ -20,7 +20,7 @@
   (mapv str->int line))
 
 (defn input-file->input-lines
-  "Reads and parses the input file into a seq of lines."
+  "Reads and parses the input file into a vector of lines."
   []
   (->> input-file
        slurp
@@ -110,7 +110,7 @@
   "Accepts the tree heights organized by rows and columns (a vector of vectors in
   both cases) and the coordinates of a tree height.
   Returns a vector that contains the right, left, up, bottom viewing distances
-  (in that order) from  that tree."
+  (in that order) from that tree."
   [trees-by-row trees-by-col tree-index]
   (let [[tree-row-index tree-col-index] tree-index
         tree (get-in trees-by-row tree-index)
