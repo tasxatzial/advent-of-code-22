@@ -111,9 +111,9 @@
   both cases) and the coordinates of a tree height.
   Returns a vector that contains the right, left, up, bottom viewing distances
   (in that order) from that tree."
-  [trees-by-row trees-by-col tree-index]
-  (let [[tree-row-index tree-col-index] tree-index
-        tree (get-in trees-by-row tree-index)
+  [trees-by-row trees-by-col tree-coordinates]
+  (let [[tree-row-index tree-col-index] tree-coordinates
+        tree (get-in trees-by-row tree-coordinates)
         tree-row (get trees-by-row tree-row-index)
         tree-col (get trees-by-col tree-col-index)
         right-trees (subvec tree-row (inc tree-col-index))
