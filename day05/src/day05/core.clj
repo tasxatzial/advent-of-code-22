@@ -30,25 +30,12 @@
   [c]
   (<= 65 (int c) 90))
 
-(defn filter-valid-stack-pairs
-  "Accepts a sequence of [stack char id, crate char] pairs and collects only the pairs that
-  have a valid crate char."
-  [pairs]
-  (->> pairs
-       (filter #(crateChar? (second %)))))
-
-(defn extract-crate-and-stack-lines
-  "Accepts a collection of lines and returns those that correspond to the crates-stacks data."
-  [input-lines]
-  (->> input-lines
-       (take-while #(not= "" %))))
-
 (defn create-stack-crate-pairs-from-line
   "Takes two lines that represent crates-stacks data and returns a sequence of
   [stack char id, crate char] pairs."
   [crate-line stack-line]
   (->> (zipmap stack-line crate-line)
-       filter-valid-stack-pairs))
+       (filter #(crateChar? (second %)))))
 
 (defn create-stack-crate-pairs
   "Accepts a collection of lines that correspond to the crates-stacks data
@@ -79,7 +66,7 @@
   represents the top of the stack."
   []
   (->> (memoized_input-file->lines)
-       extract-crate-and-stack-lines
+       (take-while #(not= "" %))
        create-stack-crate-pairs
        get-crates-per-stack))
 
