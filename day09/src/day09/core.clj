@@ -81,45 +81,42 @@
     (map + knot move-vector)))
 
 (defn execute-instruction
-  "Multi-arity function.
-  1) If called with 2 arguments, it receives an instruction and a vector of knots
-  (head knot is first), and executes the instruction returning a vector of two elements.
-  First one is a vector of all the positions of the tail knot and the second one
-  is a vector of the final positions of all knots.
-  2) If called with 3 arguments, it can also receive a starting vector of tail positions."
-  ([instruction knots]
-   (execute-instruction instruction knots []))
-  ([instruction knots tail-positions]
-   (let [[direction move-amount] instruction
-         head (first knots)
-         rest-knots (rest knots)]
-     (if (pos? move-amount)
-       (let [new-head (move-head head direction)
-             new-rest-knots (seq-reductions move-knot new-head rest-knots)
-             new-knots (into [new-head] new-rest-knots)
-             new-tail (last new-knots)
-             new-tail-positions (conj tail-positions new-tail)
-             updated-instruction [direction (dec move-amount)]]
-         (recur updated-instruction new-knots new-tail-positions))
-       [tail-positions knots]))))
+  "Receives an instruction and a vector of knots (head knot is first). Executes the
+  instruction and returns a vector of two elements. First one is a vector of all the
+  positions of the tail knot and the second one is a vector of the final positions
+  of all knots."
+  [instruction knots]
+  (loop [instruction instruction
+         knots knots
+         tail-positions []]
+    (let [[direction move-amount] instruction
+          head (first knots)
+          rest-knots (rest knots)]
+      (if (pos? move-amount)
+        (let [new-head (move-head head direction)
+              new-rest-knots (seq-reductions move-knot new-head rest-knots)
+              new-knots (into [new-head] new-rest-knots)
+              new-tail (last new-knots)
+              new-tail-positions (conj tail-positions new-tail)
+              updated-instruction [direction (dec move-amount)]]
+          (recur updated-instruction new-knots new-tail-positions))
+        [tail-positions knots]))))
 
 (defn execute-instructions
-  "Multi-arity function.
-  1) If called with 2 arguments, it receives a seq of instructions and a vector of
-  knots (head knot is first), and executes all instructions returning the final result
-  as a vector of two elements. First one is a set of all the positions of the tail knot
-  and the second one is a vector of the final positions of all knots.
-  2) If called with 3 arguments, it can also receive a starting set of the positions
-  of the tail knot."
-  ([instructions initial-knots]
-   (execute-instructions instructions initial-knots #{'(0 0)}))
-  ([instructions knots tail-positions]
-   (if (seq instructions)
-     (let [instruction (first instructions)
-           [new-tail-positions new-knot-positions] (execute-instruction instruction knots)
-           tail-positions (into tail-positions new-tail-positions)]
-       (recur (rest instructions) new-knot-positions tail-positions))
-     [tail-positions knots])))
+  "Receives a seq of instructions and a vector of knots (head knot is first). Executes
+  all instructions and returns the final result as a vector of two elements. First one
+  is a set of all the positions of the tail knot and the second one is a vector of the
+  final positions of all knots."
+  [instructions initial-knots]
+  (loop [instructions instructions
+         knots initial-knots
+         tail-positions #{'(0 0)}]
+    (if (seq instructions)
+      (let [instruction (first instructions)
+            [new-tail-positions new-knot-positions] (execute-instruction instruction knots)
+            tail-positions (into tail-positions new-tail-positions)]
+        (recur (rest instructions) new-knot-positions tail-positions))
+      [tail-positions knots])))
 
 ; --------------------------
 ; results
