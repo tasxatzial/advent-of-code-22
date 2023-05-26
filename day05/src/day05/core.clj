@@ -25,7 +25,7 @@
 ; --------------------------
 ; parse input into a map that represents the stacks
 
-(defn crateChar?
+(defn crate-char?
   "Returns true if the given char represents a crate."
   [c]
   (<= 65 (int c) 90))
@@ -35,11 +35,11 @@
   [stack char id, crate char] pairs."
   [crate-line stack-line]
   (->> (zipmap stack-line crate-line)
-       (filter #(crateChar? (second %)))))
+       (filter #(crate-char? (second %)))))
 
 (defn create-stack-crate-pairs
-  "Accepts a collection of lines that correspond to the crates-stacks data
-  and returns a seq that contains all [stack char id, crate char] pairs."
+  "Accepts a sequence of lines that correspond to the crates-stacks data
+  and returns a sequence that contains all [stack char id, crate char] pairs."
   [crate-and-stack-lines]
   (let [input-line-stack (last crate-and-stack-lines)
         input-lines-crate (butlast crate-and-stack-lines)]
@@ -48,8 +48,8 @@
                  input-lines-crate (repeat input-line-stack)))))
 
 (defn get-crates-per-stack
-  "Accepts a seq of [stack char id, crate char]  pairs and organizes it
-  into a map: Keys are integers representing the stack id, values are vectors
+  "Accepts a sequence of [stack char id, crate char] pairs and organizes it
+  into a map: keys are integers representing the stack id, values are vectors
   that contain the crate chars for each stack."
   [stack-crate-pairs]
   (reduce (fn [result stack-crate-pair]
@@ -73,7 +73,7 @@
 (def memoized_input-stack-crates->stack-crates (memoize input-stack-crates->stack-crates))
 
 ; --------------------------
-; parse input into a seq that represents the instructions
+; parse input into a sequence that represents the instructions
 
 (defn instruction-lines
   "Accepts a collection of lines and returns those that correspond to the instructions."
@@ -93,8 +93,8 @@
     (mapv str->int [amount-to-move from-stack to-stack])))
 
 (defn input-instructions->instructions
-  "Reads and parses the input file into a seq of vectors. Each vector represents an
-  instruction and contains 3 integers."
+  "Reads and parses the input file into a sequence of vectors. Each vector represents
+  an instruction and contains 3 integers."
   []
   (->> (memoized_input-file->lines)
        instruction-lines
@@ -109,10 +109,8 @@
   "Returns the new stacks after an instruction has been executed.
   fn_crate-order determines the order of insertion in the target stack."
   [stacks instruction fn_crate-order]
-  (let [amount-to-move (first instruction)
-        src-stack-num (second instruction)
+  (let [[amount-to-move src-stack-num target-stack-num] instruction
         src-stack (get stacks src-stack-num)
-        target-stack-num (last instruction)
         target-stack (get stacks target-stack-num)
         new-src-stack (vec (drop-last amount-to-move src-stack))
         removed-crates (fn_crate-order (take-last amount-to-move src-stack))

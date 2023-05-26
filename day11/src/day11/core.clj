@@ -11,12 +11,12 @@
   (Integer/parseInt (str s)))
 
 (defn get-number
-  "Extracts a number from a string and returns an int."
+  "Extracts the first number from a string."
   [s]
   (str->int (re-find #"\d+" s)))
 
 (defn get-numbers
-  "Extracts all numbers from a string and returns a vector of ints."
+  "Extracts all numbers from a string and returns a vector of integers."
   [s]
   (mapv str->int (re-seq #"\d+" s)))
 
@@ -24,8 +24,8 @@
 ; parse file
 
 (defn input-file->lines-per-monkey
-  "Reads and the input file and splits it into a seq of seqs. Each seq contains all lines
-  that correspond to a single monkey."
+  "Reads and the input file and splits it into a sequence of sequences. Each sequence
+  contains all lines that correspond to a single monkey."
   []
   (->> input-file
        slurp
@@ -48,7 +48,7 @@
     #(integer? (/ % num))))
 
 (defn monkey-lines->monkey
-  "Parses a seq that has the lines for a single monkey into a map that contains:
+  "Parses the sequence of the lines for a single monkey into a map that contains:
   :index --> monkey id (int)
   :items --> starting items (vector of int)
   :fn_operation --> operation function
@@ -80,7 +80,7 @@
 (defn initialize-inspection
   "Updates each of the monkeys with the following keys:
   :inspected --> the number of inspected items
-  :fn_reduce-item --> function that reduces the item before it is thrown"
+  :fn_reduce-item --> function that reduces an item before it is thrown"
   [monkeys fn_reduce-item]
   (reduce (fn [res [index monkey]]
             (let [updated-monkey (assoc monkey :inspected 0 :fn_reduce-item fn_reduce-item)]
@@ -145,12 +145,12 @@
           (recur new-monkeys (dec rounds)))))))
 
 (defn get-monkey-business-level
-  "Returns the monkey business level."
+  "Returns the level of monkey business."
   [monkeys]
   (->> (map #(:inspected (second %)) monkeys)
        (sort >)
        (take 2)
-       (apply *)))
+       (reduce *)))
 
 ; --------------------------
 ; results
@@ -161,7 +161,7 @@
       (get-monkeys-after-all-rounds 20 #(quot % 3))
       get-monkey-business-level))
 
-;; 9699690 is the product of all numbers in the divisible by test
+;; 9699690 is the product of all numbers found in the "divisible by" lines
 (defn day11-2
   []
   (-> (memoized_input-file->monkeys)

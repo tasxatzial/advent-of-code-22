@@ -15,7 +15,7 @@
 (def input-file "resources\\input.txt")
 
 (defn input-line->droplet-position
-  "Parses an input line into vector of 3 ints (droplet position)."
+  "Parses an input line into a sequence of 3 ints (droplet position)."
   [line]
   (map str->int (clojure.string/split line #",")))
 
@@ -29,8 +29,7 @@
        (map input-line->droplet-position)
        set))
 
-(def memoized_input-file->droplet-positions
-  (memoize input-file->droplet-positions))
+(def memoized_input-file->droplet-positions (memoize input-file->droplet-positions))
 
 (defn get-neighbors
   "Returns a set with the 6 adjacent positions of the given position."
@@ -44,8 +43,8 @@
 ; problem 1
 
 (defn count-exposed-sides
-  "Returns the number of adjacent positions of the given position that are
-  not droplets. Both arguments must be sets."
+  "Returns the number of adjacent positions of the given position that are not
+  part of the given droplet. Both arguments must be sets."
   [droplet position]
   (let [pos-neighbors (get-neighbors position)]
     (- 6 (count (set/intersection pos-neighbors droplet)))))
@@ -55,7 +54,7 @@
   [droplet]
   (->> droplet
        (map #(count-exposed-sides droplet %))
-       (apply +)))
+       (reduce +)))
 
 ; --------------------------
 ; problem 2
@@ -72,7 +71,7 @@
     [x y z]))
 
 (defn get-droplet-ranges
-  "Returns a seq of 3 vectors, each containing the min and max position of the
+  "Returns a sequence of 3 vectors, each containing the min and max position of the
   droplet in each of the x,y,z axes."
   [droplet]
   (let [xs (map first droplet)
@@ -84,7 +83,7 @@
 
 (defn create-bounding-box
   "Creates a box that contains the droplet, but does not have any adjacent
-  positions to the droplet."
+  positions to the droplet. The box is represented by a set of its coordinates."
   [droplet]
   (let [droplet-ranges (get-droplet-ranges droplet)
         [min-x min-y min-z] (map #(- % 2) (map first droplet-ranges))
@@ -99,7 +98,7 @@
 
 (defn get-droplet-external-position
   "Returns a position that is always outside the droplet. More specifically,
-  it is one of the interior corners of its bounding box. This position
+  it is one of the inner corners of its bounding box. This position
   is never adjacent to the droplet."
   [positions]
   (let [[[min-x _] [min-y _] [min-z _]] (get-droplet-ranges positions)]

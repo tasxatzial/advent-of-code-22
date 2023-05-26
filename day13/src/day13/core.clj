@@ -7,14 +7,14 @@
 (def input-file "resources\\input.txt")
 
 (defn input-line->packet
-  "Parses an input line into the corresponding vector form."
+  "Parses an input line into the corresponding vector form (a packet)."
   [line]
   (when (not= "" line)
     (read-string line)))
 
 (defn input-file->packets
-  "Reads and parses the input file into a seq of packets. The form of each
-  packet is described in the function input-line->packet."
+  "Reads and parses the input file into a sequence of vectors. Each vector
+  corresponds to a packet."
   []
   (->> input-file
        slurp
@@ -78,7 +78,7 @@
         pairs-comparison (map #(apply compare-packets %) packet-pairs)]
     (->> pairs-comparison
          (keep-indexed #(if (= :less %2) (inc %1)))
-         (apply +))))
+         (reduce +))))
 
 (defn day13-2
   []
@@ -88,7 +88,7 @@
         sorted-packets (sort #(order->int (compare-packets %1 %2)) new-packets)]
     (->> sorted-packets
          (keep-indexed #(if (some #{%2} divider-packets) (inc %1)))
-         (apply *))))
+         (reduce *))))
 
 (defn -main
   []

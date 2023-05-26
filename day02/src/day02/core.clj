@@ -38,7 +38,7 @@
   (reverse-map outcome->num))
 
 (defn input-file->strategy-guide
-  "Reads and parses the input file into a seq of vectors.
+  "Reads and parses the input file into a sequence of vectors.
   Each vector represents the -encrypted- instructions in a round
   and contains 2 single-char strings."
   []
@@ -51,7 +51,7 @@
 
 (defn decrypt-strategy
   "Decrypts the strategy guide using a decrypt function on each round.
-  Returns a seq of vectors. Each vector contains two keywords that represent
+  Returns a sequence of vectors. Each vector contains two keywords that represent
   the players' choices."
   [strategy decrypt-round-fn]
   (map decrypt-round-fn strategy))
@@ -86,12 +86,12 @@
 
 (defn total-score
   "Calculates the total score when all rounds have ended. The strategy
-  is a seq of 2 element vectors that have the choices of both players in
+  is a sequence of 2 element vectors that have the choices of both players in
   each round."
   [strategy]
   (->> strategy
        (map round-score)
-       (apply +)))
+       (reduce +)))
 
 ; --------------------------
 ; problem 1
@@ -124,9 +124,9 @@
    "X" :loss
    "Z" :win})
 
-(defn find-my-choice
-  "Returns what I should play when a round is represented by
-  the elf choice and the round outcome."
+(defn human-choice
+  "Returns what the human should play (:rock, :paper, :scissors). Each round is
+  represented by the elf choice and the round outcome."
   [round]
   (let [[elf-choice outcome] round
         elf-choice-num (choice->num elf-choice)
@@ -139,16 +139,16 @@
   [encrypted-round]
   (let [round (map #(get p2_decrypt-symbol %) encrypted-round)
         elf-choice (first round)
-        my-choice (find-my-choice round)]
+        my-choice (human-choice round)]
     [elf-choice my-choice]))
 
 ; --------------------------
 ; results
 
 (defn day02
-  [decrypt-round-fn]
+  [fn_decrypt-round]
   (let [strategy (memoized-input-file->strategy-guide)
-        decrypted-strategy (decrypt-strategy strategy decrypt-round-fn)]
+        decrypted-strategy (decrypt-strategy strategy fn_decrypt-round)]
     (total-score decrypted-strategy)))
 
 (defn day02-1
