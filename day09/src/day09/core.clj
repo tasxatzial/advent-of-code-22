@@ -33,14 +33,14 @@
 (defn input-line->instruction
   "Parses an input line and returns a vector that represents an instruction.
   The first element of the vector is the direction to move and is represented by the
-  :D :U :L :R keywords. The second element is the move distance (integer)."
+  :D :U :L :R keywords. The second element is the move distance."
   [line]
   (let [[direction-char num-char] (clojure.string/split line #" ")]
     [(keyword (str direction-char))
      (str->int num-char)]))
 
 (defn input-file->instructions
-  "Reads and parses the input file into a seq of instructions.
+  "Reads and parses the input file into a sequence of instructions.
   The form of each instruction is described in function input-line->instruction."
   []
   (->> input-file
@@ -82,8 +82,8 @@
 
 (defn execute-instruction
   "Receives an instruction and a vector of knots (head knot is first). Executes the
-  instruction and returns a vector of two elements. First one is a vector of all the
-  positions of the tail knot and the second one is a vector of the final positions
+  instruction and returns a map with :tail-positions being the vector of all the
+  positions of the tail knot and :knots being the vector of the final positions
   of all knots."
   [instruction knots]
   (loop [instruction instruction
@@ -100,23 +100,25 @@
               new-tail-positions (conj tail-positions new-tail)
               updated-instruction [direction (dec move-amount)]]
           (recur updated-instruction new-knots new-tail-positions))
-        [tail-positions knots]))))
+        {:tail-positions tail-positions
+         :knots knots}))))
 
 (defn execute-instructions
-  "Receives a seq of instructions and a vector of knots (head knot is first). Executes
-  all instructions and returns the final result as a vector of two elements. First one
-  is a set of all the positions of the tail knot and the second one is a vector of the
-  final positions of all knots."
+  "Receives a sequence of instructions and a vector of knots (head knot is first).
+  Executes all instructions and returns the final result as a map with :tail-positions
+  being the set of all the positions of the tail knot and :knots being the vector of
+  the final positions of all knots."
   [instructions initial-knots]
   (loop [instructions instructions
          knots initial-knots
          tail-positions #{'(0 0)}]
     (if (seq instructions)
       (let [instruction (first instructions)
-            [new-tail-positions new-knot-positions] (execute-instruction instruction knots)
+            {new-tail-positions :tail-positions new-knot-positions :knots} (execute-instruction instruction knots)
             tail-positions (into tail-positions new-tail-positions)]
         (recur (rest instructions) new-knot-positions tail-positions))
-      [tail-positions knots])))
+      {:tail-positions tail-positions
+       :knots knots})))
 
 ; --------------------------
 ; results
@@ -124,7 +126,7 @@
 (defn day09
   [initial-knot-positions]
   (let [instructions (memoized_input-file->instructions)
-        [tail-positions _] (execute-instructions instructions initial-knot-positions)]
+        {tail-positions :tail-positions} (execute-instructions instructions initial-knot-positions)]
     (count tail-positions)))
 
 (defn day09-1

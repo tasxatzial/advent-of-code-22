@@ -21,8 +21,8 @@
        (remove #{[""]})))
 
 (defn input-file->elves-calories
-  "Reads and parses the input file into a seq of seqs.
-  Each seq contains integers that represent the calories of each elf."
+  "Reads and parses the input file into a sequence of sequences.
+  Each sequence represents the calories of each elf."
   []
   (->> input-file
        slurp
@@ -35,7 +35,7 @@
 (defn elf-total-calories
   "Returns the total calories carried by an elf."
   [calories]
-  (apply + calories))
+  (reduce + calories))
 
 ; --------------------------
 ; results
@@ -52,7 +52,7 @@
        (map elf-total-calories)
        (sort >)
        (take 3)
-       (apply +)))
+       (reduce +)))
 
 (defn -main
   []

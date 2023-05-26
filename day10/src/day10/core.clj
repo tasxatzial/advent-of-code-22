@@ -39,9 +39,9 @@
    :noop 1})
 
 (defn exec-cmd
-  "Accepts a vector that represents a command and the current value of the
-  register. Returns a vector that contains the values of the register in each
-  of the cycles that are required for command execution."
+  "Accepts a vector containing a command and a register value.
+  Returns a vector that contains the register's values throughout the entire
+  process of executing the command."
   [cmd register]
   (let [[op val] cmd
         cycle-cost (cmd-cycle-cost op)
@@ -52,8 +52,8 @@
 
 (defn exec-cmds
   "Accepts a vector of commands and an initial register. Returns a vector that
-  contains the values of the register in each of the cycles that are required for
-  executing all commands."
+  contains the register's values throughout the entire process of executing
+  all commands."
   [cmds register]
   (reduce (fn [result cmd]
             (->> (last result)
@@ -66,17 +66,16 @@
 ; problem 2
 
 (defn get-pixel-val
-  "Returns the value of the pixel given its index and a sprite vector
-  of 3 pixel indices."
+  "Returns the value of the pixel given its index and a vector of 3 pixel indices (a sprite)."
   [pixel-index sprite]
   (if (some #(= pixel-index %) sprite)
     \#
     \.))
 
 (defn draw-crt
-  "Executes all commands given an initial register value. Returns
-  the output of the crt as a seq of seqs. Each seq corresponds to
-  the final pixel values in a crt line."
+  "Executes all commands given an initial register value. Returns the output of
+  the crt as a sequence of sequences. Each sequence corresponds to the final pixel
+  values in a crt line."
   [cmds register]
   (let [crt-length 240
         line-length 40
@@ -105,7 +104,7 @@
         registers-at-cycles (map #(get registers %) (map dec cycles))]
     (->> registers-at-cycles
          (map * cycles)
-         (apply +))))
+         (reduce +))))
 
 (defn day10-2
   []

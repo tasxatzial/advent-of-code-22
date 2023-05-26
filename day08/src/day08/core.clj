@@ -14,8 +14,7 @@
 (def input-file "resources\\input.txt")
 
 (defn input-line->trees
-  "Parses an input line and returns a vector of integers that represent
-  the heights of the trees."
+  "Parses an input line and returns a vector that represents the heights of the trees."
   [line]
   (mapv str->int line))
 
@@ -29,15 +28,15 @@
 (def memoized_input-file->input-lines (memoize input-file->input-lines))
 
 (defn input-file->trees-by-row
-  "Reads and parses the input file into a vector of vectors. Vectors correspond to
-  rows in the input file and contain integers that represent the tree heights."
+  "Reads and parses the input file into a vector of vectors. Each vector represents
+  the tree heights in each row."
   []
   (->> (memoized_input-file->input-lines)
        (mapv input-line->trees)))
 
 (defn input-file->trees-by-col
-  "Reads and parses the input file into a vector of vectors. Vectors correspond to
-  columns in the input file and contain integers that represent the tree heights."
+  "Reads and parses the input file into a vector of vectors. Each vector represents
+  the tree heights in each colum."
   []
   (let [input-lines (memoized_input-file->input-lines)
         row-count (count input-lines)]
@@ -48,7 +47,7 @@
          (mapv vec))))
 
 (defn create-grid
-  "Reads the input file and creates a seq that contains the coordinates of each
+  "Reads the input file and creates a sequence that contains the coordinates of each
   tree as a vector of two integers. Indices start from [0 0]."
   []
   (let [trees-by-row (input-file->trees-by-row)
@@ -62,14 +61,12 @@
 
 (defn tree-visible-from-edge?
   "Multi-arity function.
-  1) If called with 2 args, it accepts a vector that represents a row of tree heights
-  and the index of a tree height in that row. Returns true if that tree is visible from
-  the edges of the row, false otherwise.
+  1) If called with 2 args, it accepts a vector that represents a row/column of tree
+  heights and the index of a tree height in that row/column. Returns true if that tree
+  is visible from the edges of the row/column, false otherwise.
   2) If called with 3 args, it accepts the tree heights organized by rows and columns
   (a vector of vectors in both cases) and the coordinates of a tree height. Returns true
-  if that tree is visible from the edges of its row or column.
-
-  Note that the 2-arity function will also work if a column is supplied."
+  if that tree is visible from the edges of its row or column."
   ([tree-row tree-col-index]
    (let [tree (get tree-row tree-col-index)]
      (or (let [left-trees (subvec tree-row 0 tree-col-index)]
@@ -86,7 +83,7 @@
 (defn count-visible-trees
   "Returns the number of trees that are visible from the edges of the grid.
   Accepts the tree heights organized by rows and columns (a vector of vectors in
-  both cases) and a grid (a seq of coordinates)."
+  both cases) and a grid (a sequence of coordinates)."
   [trees-by-row trees-by-col grid]
   (->> grid
        (map #(tree-visible-from-edge? trees-by-row trees-by-col %))
@@ -97,8 +94,8 @@
 ; problem 2
 
 (defn get-directional-view-distance
-  "Accepts a tree height and a seq of the rest of the tree heights in any direction
-  (left, right, bottom, up). Returns the viewing distance from that tree."
+  "Accepts a tree height and a sequence of the rest of the tree heights in any
+  direction (left, right, bottom, up). Returns the viewing distance from that tree."
   [tree rest-trees]
   (let [visible-trees-count (count (take-while #(> tree %) rest-trees))]
     (if (and (>= tree (or (last rest-trees) 0))
@@ -128,11 +125,11 @@
 (defn get-scenic-score
   "Returns the scenic score given a collection of viewing distances."
   [view-distances]
-  (apply * view-distances))
+  (reduce * view-distances))
 
 (defn get-highest-scenic-score
   "Accepts the tree heights organized by rows and columns (a vector of vectors in
-  both cases) and a grid (a seq of coordinates).
+  both cases) and a grid (a sequence of coordinates).
   Computes the highest scenic score possible for any tree."
   [trees-by-row trees-by-col grid]
   (->> grid
@@ -143,11 +140,11 @@
 ; results
 
 (defn day08
-  [func]
+  [f]
   (let [trees-by-row (input-file->trees-by-row)
         trees-by-col (input-file->trees-by-col)
         grid (create-grid)]
-    (func trees-by-row trees-by-col grid)))
+    (f trees-by-row trees-by-col grid)))
 
 (defn day08-1
   []

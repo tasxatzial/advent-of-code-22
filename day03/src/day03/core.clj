@@ -22,7 +22,7 @@
 (def input-file "resources\\input.txt")
 
 (defn input-file->rucksacks
-  "Reads and parses the input file into a collection of rucksacks,
+  "Reads and parses the input file into a sequence of rucksacks,
   each rucksack is represented by a string."
   []
   (->> input-file
@@ -43,15 +43,14 @@
 
 (defn extract-rucksack-compartments
   "Converts a rucksack string to its compartment representation:
-  A seq of two equally sized seqs that contain the chars that represent
+  A sequence of two equally sized sequences that contain the chars that represent
   the items in each compartment."
   [rucksack]
   (let [rucksack-size (count rucksack)]
     (partition (/ rucksack-size 2) rucksack)))
 
 (defn rucksacks->compartments
-  "Partitions a seq of rucksacks into compartments. Returns a seq that has the
-  following structure: (((left compartment chars) (right compartment chars)), ...)"
+  "Partitions a sequence of rucksacks into compartments."
   [rucksacks]
   (map extract-rucksack-compartments rucksacks))
 
@@ -59,8 +58,7 @@
 ; problem 2
 
 (defn rucksacks->grouped-by-3
-  "Partitions a seq of rucksacks into groups of 3. Returns a seq that has the
-  following structure: ((rucksack1 rucksack2 rucksack3), ...)"
+  "Partitions a sequence of rucksacks into groups of 3."
   [rucksacks]
   (partition 3 rucksacks))
 
@@ -73,7 +71,7 @@
        (map (comp seq get-common-items))
        flatten
        (map get-item-priority)
-       (apply +)))
+       (reduce +)))
 
 (defn day03-1
   []
