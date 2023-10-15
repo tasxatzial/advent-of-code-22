@@ -25,63 +25,67 @@
 ; --------------------------
 ; parse input into a map that represents the stacks
 
-(defn crate-char?
-  "Returns true if the given char represents a crate."
-  [c]
-  (<= 65 (int c) 90))
-
-(defn create-stack-crate-pairs-from-line
-  "Maps the input line that corresponds to the stack ids to an input
-  line of crates."
-  [crate-line stack-line]
-  (->> (zipmap stack-line crate-line)
-       (filter #(crate-char? (second %)))))
-
-(defn create-stack-crate-pairs
-  "Accepts a sequence of lines that correspond to the crates-stacks data
-  and returns a sequence that contains all [stack char id, crate char] pairs.
-  The last line represents the stack ids. The rest of the lines represent the stacks."
-  [crate-and-stack-lines]
-  (let [input-line-stack (last crate-and-stack-lines)
-        input-lines-crate (butlast crate-and-stack-lines)]
-    (reduce into
-            (map create-stack-crate-pairs-from-line
-                 input-lines-crate (repeat input-line-stack)))))
-
-(defn get-crates-per-stack
-  "Accepts a sequence of [stack char id, crate char] pairs and organizes it
-  into a map: keys are integers representing the stack id, values are vectors
-  that contain the crate chars for each stack."
-  [stack-crate-pairs]
-  (reduce (fn [result stack-crate-pair]
-            (let [[stack-char crate-char] stack-crate-pair
-                  stack-num (str->int stack-char)
-                  stack-crates (get result stack-num [])]
-              (assoc result stack-num (conj stack-crates crate-char))))
-          {}
-          stack-crate-pairs))
-
-(defn input-stack-crates->stack-crates
-  "Reads and parses the input file into a map. Keys are integers representing the stack id,
-  values are vectors that contain the crate chars for each stack. Last item in each vector
-  represents the top of the stack."
+(defn extract-stack-crate-lines
+  "Reads the input file and returns those lines that contain the crates and stack ids."
   []
   (->> (memoized_input-file->lines)
-       (take-while #(not= "" %))
-       create-stack-crate-pairs
-       get-crates-per-stack))
+       (take-while #(not= "" %))))
 
-(def memoized_input-stack-crates->stack-crates (memoize input-stack-crates->stack-crates))
+(defn get-stack-ids
+  "Reads the line that contains the stack ids and returns them as a sequence of integers."
+  [stack-line]
+  (->> (clojure.string/split stack-line #" ")
+       (filter #(not= "" %))
+       (map str->int)))
+
+(defn get-crate-indices
+  "Generates a sequence of the string indices that contain a crate char."
+  [stack-ids]
+  (take (count stack-ids) (range 1 100 4)))
+
+(defn get-stack-line
+  "Returns the line that contains the stack ids given a sequence of lines
+  that contains both the stack ids and the crates."
+  [stack-crate-lines]
+  (last stack-crate-lines))
+
+(defn get-crate-lines
+  "Returns the lines that contains the crates given a sequence of lines
+  that contains both the stack ids and the crates. The lines will appear
+  in reverse order."
+  [stack-crate-lines]
+  (reverse (drop-last stack-crate-lines)))
+
+(defn create-stack
+  "Returns as a vector the crate chars at the given string index from all lines."
+  [crate-lines crate-index]
+  (->> crate-lines
+       (map #(nth % crate-index))
+       (filterv #(not= \space %))))
+
+(defn create-stacks
+  "Reads and parses the input file into a map of {stack id} -> {stack of crates}.
+  Each stack of crates is represented by a vector and its last item is the top
+  of the stack."
+  []
+  (let [stack-crate-lines (extract-stack-crate-lines)
+        stack-line (get-stack-line stack-crate-lines)
+        stack-ids (get-stack-ids stack-line)
+        crate-indices (get-crate-indices stack-ids)
+        crate-lines (get-crate-lines stack-crate-lines)]
+    (loop [stack-ids stack-ids
+           crate-indices crate-indices
+           result {}]
+      (if (seq stack-ids)
+        (let [crates (create-stack crate-lines (first crate-indices))
+              new-result (assoc result (first stack-ids) crates)]
+          (recur (rest stack-ids) (rest crate-indices) new-result))
+        result))))
+
+(def memoized_create-stacks (memoize create-stacks))
 
 ; --------------------------
 ; parse input into a sequence that represents the instructions
-
-(defn instruction-lines
-  "Accepts a collection of lines and returns those that correspond to the instructions."
-  [input-lines]
-  (->> input-lines
-       (drop-while #(not= "" %))
-       rest))
 
 (defn extract-instruction
   "Accepts a line that corresponds to an instruction and returns a vector that
@@ -93,15 +97,16 @@
         to-stack (get instruction-tokens 5)]
     (mapv str->int [amount-to-move from-stack to-stack])))
 
-(defn input-instructions->instructions
+(defn create-instructions
   "Reads and parses the input file into a sequence of vectors. Each vector represents
   an instruction and contains 3 integers."
   []
   (->> (memoized_input-file->lines)
-       instruction-lines
+       (drop-while #(not= "" %))
+       rest
        (map extract-instruction)))
 
-(def memoized_input-instructions->instructions (memoize input-instructions->instructions))
+(def memoized_create-instructions (memoize create-instructions))
 
 ; --------------------------
 ; execute instructions
@@ -110,15 +115,15 @@
   "Returns the new stacks after an instruction has been executed.
   fn_crate-order determines the order of insertion in the target stack."
   [stacks instruction fn_crate-order]
-  (let [[amount-to-move src-stack-num target-stack-num] instruction
-        src-stack (get stacks src-stack-num)
-        target-stack (get stacks target-stack-num)
-        new-src-stack (vec (drop-last amount-to-move src-stack))
-        removed-crates (fn_crate-order (take-last amount-to-move src-stack))
+  (let [[amount-to-move src-stack-id target-stack-id] instruction
+        src-stack (get stacks src-stack-id)
+        target-stack (get stacks target-stack-id)
+        new-src-stack (subvec src-stack 0 (- (count src-stack) amount-to-move))
+        removed-crates (fn_crate-order (subvec src-stack (- (count src-stack) amount-to-move)))
         new-target-stack (into target-stack removed-crates)]
     (-> stacks
-        (assoc src-stack-num new-src-stack)
-        (assoc target-stack-num new-target-stack))))
+        (assoc src-stack-id new-src-stack)
+        (assoc target-stack-id new-target-stack))))
 
 (defn execute-instructions
   "Executes all instructions and returns the final stacks.
@@ -142,8 +147,8 @@
 
 (defn day05
   [fn_crate-order]
-  (let [stacks (memoized_input-stack-crates->stack-crates)
-        instructions (memoized_input-instructions->instructions)]
+  (let [stacks (memoized_create-stacks)
+        instructions (memoized_create-instructions)]
     (-> instructions
         (execute-instructions stacks fn_crate-order)
         get-top-stack-crates-as-string)))
