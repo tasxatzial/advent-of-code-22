@@ -32,7 +32,7 @@
 
 (def memoized_input-file->elves-calories (memoize input-file->elves-calories))
 
-(defn elf-total-calories
+(defn get-elf-total-calories
   "Returns the total calories carried by an elf."
   [calories]
   (reduce + calories))
@@ -43,13 +43,13 @@
 (defn day01-1
   []
   (->> (memoized_input-file->elves-calories)
-       (map elf-total-calories)
+       (map get-elf-total-calories)
        (apply max)))
 
 (defn day01-2
   []
   (->> (memoized_input-file->elves-calories)
-       (map elf-total-calories)
+       (map get-elf-total-calories)
        (sort >)
        (take 3)
        (reduce +)))

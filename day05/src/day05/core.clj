@@ -113,13 +113,13 @@
 
 (defn move-crates
   "Returns the new stacks after an instruction has been executed.
-  fn_crate-order determines the order of insertion in the target stack."
-  [stacks instruction fn_crate-order]
+  crate-order is a function that determines the order of insertion in the target stack."
+  [stacks instruction crate-order]
   (let [[amount-to-move src-stack-id target-stack-id] instruction
         src-stack (get stacks src-stack-id)
         target-stack (get stacks target-stack-id)
         new-src-stack (subvec src-stack 0 (- (count src-stack) amount-to-move))
-        removed-crates (fn_crate-order (subvec src-stack (- (count src-stack) amount-to-move)))
+        removed-crates (crate-order (subvec src-stack (- (count src-stack) amount-to-move)))
         new-target-stack (into target-stack removed-crates)]
     (-> stacks
         (assoc src-stack-id new-src-stack)
@@ -127,10 +127,10 @@
 
 (defn execute-instructions
   "Executes all instructions and returns the final stacks.
-  fn_crate-order determines the order of insertion in the target stack."
-  [instructions stacks fn_crate-order]
+  crate-order is a function that determines the order of insertion in the target stack."
+  [instructions stacks crate-order]
   (reduce (fn [result instruction]
-            (move-crates result instruction fn_crate-order))
+            (move-crates result instruction crate-order))
           stacks
           instructions))
 
@@ -146,11 +146,11 @@
        (apply str)))
 
 (defn day05
-  [fn_crate-order]
+  [crate-order]
   (let [stacks (memoized_create-stacks)
         instructions (memoized_create-instructions)]
     (-> instructions
-        (execute-instructions stacks fn_crate-order)
+        (execute-instructions stacks crate-order)
         get-top-stack-crates-as-string)))
 
 (defn day05-1

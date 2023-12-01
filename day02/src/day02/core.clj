@@ -53,8 +53,8 @@
   "Decrypts the strategy guide using a decrypt function on each round.
   Returns a sequence of vectors. Each vector contains two keywords that represent
   the players' choices."
-  [strategy decrypt-round-fn]
-  (map decrypt-round-fn strategy))
+  [strategy decrypt-round]
+  (map decrypt-round strategy))
 
 (defn round-outcome
   "Returns :loss or :win or :draw depending on the outcome of the round. A round
@@ -75,7 +75,7 @@
    :paper 2
    :rock 1})
 
-(defn round-score
+(defn get-round-score
   "Returns the total score of each round, that is, the sum of the
   choice-score and outcome-score. A round is represented by a vector
   that has the choices of both players."
@@ -84,13 +84,13 @@
         outcome (round-outcome round)]
     (+ (outcome->score outcome) (choice->score my-choice))))
 
-(defn total-score
+(defn get-total-score
   "Calculates the total score when all rounds have ended. The strategy
   is a sequence of 2 element vectors that have the choices of both players in
   each round."
   [strategy]
   (->> strategy
-       (map round-score)
+       (map get-round-score)
        (reduce +)))
 
 ; --------------------------
@@ -146,10 +146,10 @@
 ; results
 
 (defn day02
-  [fn_decrypt-round]
+  [decrypt-round]
   (let [strategy (memoized-input-file->strategy-guide)
-        decrypted-strategy (decrypt-strategy strategy fn_decrypt-round)]
-    (total-score decrypted-strategy)))
+        decrypted-strategy (decrypt-strategy strategy decrypt-round)]
+    (get-total-score decrypted-strategy)))
 
 (defn day02-1
   []

@@ -51,15 +51,15 @@
   "Parses the sequence of the lines for a single monkey into a map that contains:
   :index --> monkey id (int)
   :items --> starting items (vector of int)
-  :fn_operation --> operation function
-  :fn_test --> test function (int -> boolean)
+  :operation --> operation function
+  :test --> test function (int -> boolean)
   :pass-test-target --> id of the target monkey if test returns true
   :fail-test-target --> id of the target monkey if test returns false"
   [monkey-lines]
-  {:index (get-number (first monkey-lines)),
-   :items (get-numbers (second monkey-lines)),
-   :fn_operation (get-operation-fn (nth monkey-lines 2))
-   :fn_test (get-test-fn (nth monkey-lines 3))
+  {:index            (get-number (first monkey-lines)),
+   :items            (get-numbers (second monkey-lines)),
+   :operation        (get-operation-fn (nth monkey-lines 2))
+   :test             (get-test-fn (nth monkey-lines 3))
    :pass-test-target (get-number (nth monkey-lines 4))
    :fail-test-target (get-number (nth monkey-lines 5))})
 
@@ -80,10 +80,10 @@
 (defn initialize-inspection
   "Updates each of the monkeys with the following keys:
   :inspected --> the number of inspected items
-  :fn_reduce-item --> function that reduces an item before it is thrown"
-  [monkeys fn_reduce-item]
+  :reduce-item --> function that reduces an item before it is thrown"
+  [monkeys reduce-item]
   (reduce (fn [res [index monkey]]
-            (let [updated-monkey (assoc monkey :inspected 0 :fn_reduce-item fn_reduce-item)]
+            (let [updated-monkey (assoc monkey :inspected 0 :reduce-item reduce-item)]
               (assoc res index updated-monkey)))
           {}
           monkeys))
@@ -102,21 +102,21 @@
   [monkeys monkey-index]
   (let [monkey (get monkeys monkey-index)
         updated-monkey (get-monkey-after-one-step monkey)
-        fn_operation (:fn_operation monkey)
-        fn_test (:fn_test monkey)
-        fn_reduce-item (:fn_reduce-item monkey)
-        throw-items (map (comp fn_reduce-item fn_operation) (:items monkey))
-        grouped-by-test-throw-items (group-by fn_test throw-items)
+        operation (:operation monkey)
+        test (:test monkey)
+        reduce-item (:reduce-item monkey)
+        thrown-items (map (comp reduce-item operation) (:items monkey))
+        grouped-by-test-thrown-items (group-by test thrown-items)
         fail-test-target-index (get monkey :fail-test-target)
         fail-test-target (get monkeys fail-test-target-index)
         fail-test-target-items (:items fail-test-target)
-        fail-test-received-items (get grouped-by-test-throw-items false)
+        fail-test-received-items (get grouped-by-test-thrown-items false)
         fail-test-target-updated-items (into fail-test-target-items fail-test-received-items)
         fail-test-updated-target (assoc fail-test-target :items fail-test-target-updated-items)
         pass-test-target-index (get monkey :pass-test-target)
         pass-test-target (get monkeys pass-test-target-index)
         pass-test-target-items (:items pass-test-target)
-        pass-test-received-items (get grouped-by-test-throw-items true)
+        pass-test-received-items (get grouped-by-test-thrown-items true)
         pass-test-target-updated-items (into pass-test-target-items pass-test-received-items)
         pass-test-updated-target (assoc pass-test-target :items pass-test-target-updated-items)]
     (-> monkeys
@@ -133,10 +133,10 @@
           monkeys))
 
 (defn get-monkeys-after-all-rounds
-  "Returns the monkeys after all rounds. Accepts a function that decreases the
+  "Returns the monkeys after all rounds. Accepts a function reduce-item that decreases the
   worry level of an item before it is thrown."
-  [monkeys rounds fn_reduce-item]
-  (let [monkeys (initialize-inspection monkeys fn_reduce-item)]
+  [monkeys rounds reduce-item]
+  (let [monkeys (initialize-inspection monkeys reduce-item)]
     (loop [monkeys monkeys
            rounds rounds]
       (if (zero? rounds)

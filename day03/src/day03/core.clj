@@ -49,7 +49,7 @@
   (let [rucksack-size (count rucksack)]
     (partition (/ rucksack-size 2) rucksack)))
 
-(defn rucksacks->compartments
+(defn get-rucksacks-compartments
   "Partitions a sequence of rucksacks into compartments."
   [rucksacks]
   (map extract-rucksack-compartments rucksacks))
@@ -57,7 +57,7 @@
 ; --------------------------
 ; problem 2
 
-(defn rucksacks->grouped-by-3
+(defn group-rucksacks-by-3
   "Partitions a sequence of rucksacks into groups of 3."
   [rucksacks]
   (partition 3 rucksacks))
@@ -66,8 +66,8 @@
 ; results
 
 (defn day03
-  [rucksacks fn_partition-rucksacks]
-  (->> (fn_partition-rucksacks rucksacks)
+  [rucksacks partition-rucksacks]
+  (->> (partition-rucksacks rucksacks)
        (map (comp seq get-common-items))
        flatten
        (map get-item-priority)
@@ -76,12 +76,12 @@
 (defn day03-1
   []
   (let [rucksacks (memoized-rucksacks)]
-    (day03 rucksacks rucksacks->compartments)))
+    (day03 rucksacks get-rucksacks-compartments)))
 
 (defn day03-2
   []
   (let [rucksacks (memoized-rucksacks)]
-    (day03 rucksacks rucksacks->grouped-by-3)))
+    (day03 rucksacks group-rucksacks-by-3)))
 
 (defn -main
   []

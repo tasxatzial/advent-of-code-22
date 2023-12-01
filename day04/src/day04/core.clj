@@ -57,9 +57,9 @@
 ; results
 
 (defn day04
-  [fn_overlap]
+  [overlap?]
   (->> (memoized-assignment-pairs)
-       (filter fn_overlap)
+       (filter overlap?)
        count))
 
 (defn day04-1
