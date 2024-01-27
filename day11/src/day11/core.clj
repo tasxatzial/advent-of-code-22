@@ -24,7 +24,7 @@
 ; parse file
 
 (defn input-file->lines-per-monkey
-  "Reads and the input file and splits it into a sequence of sequences. Each sequence
+  "Reads the input file and splits it into a sequence of sequences. Each sequence
   contains all lines that correspond to a single monkey."
   []
   (->> input-file
@@ -63,7 +63,7 @@
    :pass-test-target (get-number (nth monkey-lines 4))
    :fail-test-target (get-number (nth monkey-lines 5))})
 
-(defn input-file->monkeys
+(defn parse-file
   "Reads and parses the input file into a map of (monkey id) -> (monkey map).
   The structure of each map is described in function monkey-lines->monkey"
   []
@@ -73,7 +73,7 @@
           {}
           (input-file->lines-per-monkey)))
 
-(def memoized_input-file->monkeys (memoize input-file->monkeys))
+(def memoized-input-file->monkeys (memoize parse-file))
 
 ; --------------------------
 
@@ -157,14 +157,14 @@
 
 (defn day11-1
   []
-  (-> (memoized_input-file->monkeys)
+  (-> (memoized-input-file->monkeys)
       (get-monkeys-after-all-rounds 20 #(quot % 3))
       get-monkey-business-level))
 
 ;; 9699690 is the product of all numbers found in the "divisible by" lines
 (defn day11-2
   []
-  (-> (memoized_input-file->monkeys)
+  (-> (memoized-input-file->monkeys)
       (get-monkeys-after-all-rounds 10000 #(mod % 9699690))
       get-monkey-business-level))
 

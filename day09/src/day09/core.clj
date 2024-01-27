@@ -39,7 +39,7 @@
     [(keyword (str direction-char))
      (str->int num-char)]))
 
-(defn input-file->instructions
+(defn parse-file
   "Reads and parses the input file into a sequence of instructions.
   The form of each instruction is described in function input-line->instruction."
   []
@@ -48,7 +48,7 @@
        clojure.string/split-lines
        (map input-line->instruction)))
 
-(def memoized_input-file->instructions (memoize input-file->instructions))
+(def memoized-input-file->instructions (memoize parse-file))
 
 (defn knot-distance->move-vector
   "Given the distance vector (V2-V1) between two subsequent knots, it returns the
@@ -125,7 +125,7 @@
 
 (defn day09
   [initial-knot-positions]
-  (let [instructions (memoized_input-file->instructions)
+  (let [instructions (memoized-input-file->instructions)
         {tail-positions :tail-positions} (execute-instructions instructions initial-knot-positions)]
     (count tail-positions)))
 

@@ -25,22 +25,22 @@
        slurp
        clojure.string/split-lines))
 
-(def memoized_input-file->input-lines (memoize input-file->input-lines))
+(def memoized-input-file->input-lines (memoize input-file->input-lines))
 
 (defn input-file->trees-by-row
   "Reads and parses the input file into a vector of vectors. Each vector represents
   the tree heights in each row."
   []
-  (->> (memoized_input-file->input-lines)
+  (->> (memoized-input-file->input-lines)
        (mapv input-line->trees)))
 
 (defn input-file->trees-by-col
   "Reads and parses the input file into a vector of vectors. Each vector represents
   the tree heights in each colum."
   []
-  (let [input-lines (memoized_input-file->input-lines)
+  (let [input-lines (memoized-input-file->input-lines)
         row-count (count input-lines)]
-    (->> (memoized_input-file->input-lines)
+    (->> (memoized-input-file->input-lines)
          (apply interleave)
          (map str->int)
          (partition row-count)

@@ -19,7 +19,7 @@
   [line]
   (map str->int (clojure.string/split line #",")))
 
-(defn input-file->droplet-positions
+(defn parse-file
   "Reads and parses the input file into a set of droplet positions. The form
   of each position is described in the function input-line->droplet-position."
   []
@@ -29,7 +29,7 @@
        (map input-line->droplet-position)
        set))
 
-(def memoized_input-file->droplet-positions (memoize input-file->droplet-positions))
+(def memoized-input-file->droplet-positions (memoize parse-file))
 
 (defn get-neighbors
   "Returns a set with the 6 adjacent positions of the given position."
@@ -125,11 +125,11 @@
 
 (defn day18-1
   []
-  (get-droplet-surface-area (memoized_input-file->droplet-positions)))
+  (get-droplet-surface-area (memoized-input-file->droplet-positions)))
 
 (defn day18-2
   []
-  (get-droplet-exterior-surface-area (memoized_input-file->droplet-positions)))
+  (get-droplet-exterior-surface-area (memoized-input-file->droplet-positions)))
 
 (defn -main
   []

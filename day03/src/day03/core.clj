@@ -21,7 +21,7 @@
 
 (def input-file "resources\\input.txt")
 
-(defn input-file->rucksacks
+(defn parse-file
   "Reads and parses the input file into a sequence of rucksacks,
   each rucksack is represented by a string."
   []
@@ -29,7 +29,7 @@
        slurp
        clojure.string/split-lines))
 
-(def memoized-rucksacks (memoize input-file->rucksacks))
+(def memoized-input-file->rucksacks (memoize parse-file))
 
 (defn get-item-priority
   "Returns the priority of an item. An item is represented by a letter char."
@@ -75,12 +75,12 @@
 
 (defn day03-1
   []
-  (let [rucksacks (memoized-rucksacks)]
+  (let [rucksacks (memoized-input-file->rucksacks)]
     (day03 rucksacks get-rucksacks-compartments)))
 
 (defn day03-2
   []
-  (let [rucksacks (memoized-rucksacks)]
+  (let [rucksacks (memoized-input-file->rucksacks)]
     (day03 rucksacks group-rucksacks-by-3)))
 
 (defn -main

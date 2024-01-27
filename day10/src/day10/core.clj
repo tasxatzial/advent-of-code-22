@@ -23,7 +23,7 @@
       [(keyword op) (str->int val)]
       [(keyword op)])))
 
-(defn input-file->cmds
+(defn parse-file
   "Reads and parses the input file into a vector of commands. The form of each
   command is described in the function input-line->cmd."
   []
@@ -32,7 +32,7 @@
        clojure.string/split-lines
        (mapv input-line->cmd)))
 
-(def memoized_input-file->cmds (memoize input-file->cmds))
+(def memoized-input-file->cmds (memoize parse-file))
 
 (def cmd-cycle-cost
   {:addx 2
@@ -97,7 +97,7 @@
 
 (defn day10-1
   []
-  (let [cmds (memoized_input-file->cmds)
+  (let [cmds (memoized-input-file->cmds)
         cycles [20 60 100 140 180 220]
         init-register 1
         registers (exec-cmds cmds init-register)
@@ -108,7 +108,7 @@
 
 (defn day10-2
   []
-  (let [cmds (memoized_input-file->cmds)
+  (let [cmds (memoized-input-file->cmds)
         init-register 1
         crt-lines (draw-crt cmds init-register)]
     (doseq [crt-line crt-lines]

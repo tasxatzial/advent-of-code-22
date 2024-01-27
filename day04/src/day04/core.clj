@@ -20,7 +20,7 @@
   (->> (clojure.string/split line #",")
        (map input-assignment->assignment)))
 
-(defn input-file->assignment-pairs
+(defn parse-file
   "Reads and parses the input file into a sequence of assignment pairs.
   The form of each pair is described in function input-line->assignment-pair."
   []
@@ -29,7 +29,7 @@
        clojure.string/split-lines
        (map input-line->assignment-pair)))
 
-(def memoized-assignment-pairs (memoize input-file->assignment-pairs))
+(def memoized-input-file->assignment-pairs (memoize parse-file))
 
 ; --------------------------
 ; problem1
@@ -58,7 +58,7 @@
 
 (defn day04
   [overlap?]
-  (->> (memoized-assignment-pairs)
+  (->> (memoized-input-file->assignment-pairs)
        (filter overlap?)
        count))
 

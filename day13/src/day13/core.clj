@@ -12,7 +12,7 @@
   (when (not= "" line)
     (read-string line)))
 
-(defn input-file->packets
+(defn parse-file
   "Reads and parses the input file into a sequence of vectors. Each vector
   corresponds to a packet."
   []
@@ -22,7 +22,7 @@
        (map input-line->packet)
        (filter some?)))
 
-(def memoized_input-file->packets (memoize input-file->packets))
+(def memoized-input-file->packets (memoize parse-file))
 
 (defn compare-int
   "Compares two numbers p1 and p2. Returns:
@@ -74,7 +74,7 @@
 
 (defn day13-1
   []
-  (let [packet-pairs (partition 2 (memoized_input-file->packets))
+  (let [packet-pairs (partition 2 (memoized-input-file->packets))
         pairs-comparison (map #(apply compare-packets %) packet-pairs)]
     (->> pairs-comparison
          (keep-indexed #(if (= :less %2) (inc %1)))
@@ -82,7 +82,7 @@
 
 (defn day13-2
   []
-  (let [packets (memoized_input-file->packets)
+  (let [packets (memoized-input-file->packets)
         divider-packets [[[2]] [[6]]]
         new-packets (into packets divider-packets)
         sorted-packets (sort #(order->int (compare-packets %1 %2)) new-packets)]

@@ -20,7 +20,7 @@
        (partition-by #{""})
        (remove #{[""]})))
 
-(defn input-file->elves-calories
+(defn parse-file
   "Reads and parses the input file into a sequence of sequences.
   Each sequence represents the calories of each elf."
   []
@@ -30,7 +30,7 @@
        partition-input-by-elf
        (map #(map str->int %))))
 
-(def memoized_input-file->elves-calories (memoize input-file->elves-calories))
+(def memoized-input-file->elves-calories (memoize parse-file))
 
 (defn get-elf-total-calories
   "Returns the total calories carried by an elf."
@@ -42,13 +42,13 @@
 
 (defn day01-1
   []
-  (->> (memoized_input-file->elves-calories)
+  (->> (memoized-input-file->elves-calories)
        (map get-elf-total-calories)
        (apply max)))
 
 (defn day01-2
   []
-  (->> (memoized_input-file->elves-calories)
+  (->> (memoized-input-file->elves-calories)
        (map get-elf-total-calories)
        (sort >)
        (take 3)

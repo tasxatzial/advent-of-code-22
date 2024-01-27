@@ -37,7 +37,7 @@
   "Maps a number to an outcome. Reverses the mapping of outcome->num."
   (reverse-map outcome->num))
 
-(defn input-file->strategy-guide
+(defn parse-file
   "Reads and parses the input file into a sequence of vectors.
   Each vector represents the -encrypted- instructions in a round
   and contains 2 single-char strings."
@@ -47,7 +47,7 @@
        clojure.string/split-lines
        (map #(clojure.string/split % #" "))))
 
-(def memoized-input-file->strategy-guide (memoize input-file->strategy-guide))
+(def memoized-input-file->strategy-guide (memoize parse-file))
 
 (defn decrypt-strategy
   "Decrypts the strategy guide using a decrypt function on each round.
