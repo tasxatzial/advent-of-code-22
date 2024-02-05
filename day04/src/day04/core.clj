@@ -6,28 +6,28 @@
 
 (def input-file "resources\\input.txt")
 
-(defn input-assignment->assignment
+(defn parse-assignment
   "Parses an assignment that is represented by the string A-B into a sequence
    of two integers."
   [assignment]
   (->> (clojure.string/split assignment #"-")
        (map #(Integer/parseInt %))))
 
-(defn input-line->assignment-pair
+(defn parse-line
   "Parses an input line into a sequence of two assignments. The form of each
-  assignment is described in function input-assignment->assignment."
+  assignment is described in the function parse-assignment."
   [line]
   (->> (clojure.string/split line #",")
-       (map input-assignment->assignment)))
+       (map parse-assignment)))
 
 (defn parse-file
   "Reads and parses the input file into a sequence of assignment pairs.
-  The form of each pair is described in function input-line->assignment-pair."
+  The form of each pair is described in the function parse-line."
   []
   (->> input-file
        slurp
        clojure.string/split-lines
-       (map input-line->assignment-pair)))
+       (map parse-line)))
 
 (def memoized-input-file->assignment-pairs (memoize parse-file))
 
@@ -57,9 +57,9 @@
 ; results
 
 (defn day04
-  [overlap?]
+  [f]
   (->> (memoized-input-file->assignment-pairs)
-       (filter overlap?)
+       (filter f)
        count))
 
 (defn day04-1
