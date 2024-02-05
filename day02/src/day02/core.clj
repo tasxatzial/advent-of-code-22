@@ -124,7 +124,7 @@
    "X" :loss
    "Z" :win})
 
-(defn human-choice
+(defn find-human-choice
   "Returns what the human should play (:rock, :paper, :scissors). Each round is
   represented by the elf choice and the round outcome."
   [round]
@@ -139,17 +139,17 @@
   [encrypted-round]
   (let [round (map #(get p2_decrypt-symbol %) encrypted-round)
         elf-choice (first round)
-        my-choice (human-choice round)]
+        my-choice (find-human-choice round)]
     [elf-choice my-choice]))
 
 ; --------------------------
 ; results
 
 (defn day02
-  [decrypt-round]
-  (let [strategy (memoized-input-file->strategy-guide)
-        decrypted-strategy (decrypt-strategy strategy decrypt-round)]
-    (get-total-score decrypted-strategy)))
+  [f]
+  (-> (memoized-input-file->strategy-guide)
+      (decrypt-strategy f)
+      get-total-score))
 
 (defn day02-1
   []
