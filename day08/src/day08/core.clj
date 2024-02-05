@@ -14,41 +14,35 @@
 (def input-file "resources\\input.txt")
 
 (defn input-line->trees
-  "Parses an input line and returns a vector that represents the heights of the trees."
+  "Parses an input line into a vector that represents the heights of the trees."
   [line]
   (mapv str->int line))
 
 (defn input-file->input-lines
   "Reads and parses the input file into a vector of lines."
   []
-  (->> input-file
-       slurp
-       clojure.string/split-lines))
+  (->> input-file slurp clojure.string/split-lines))
 
 (def memoized-input-file->input-lines (memoize input-file->input-lines))
 
 (defn input-file->trees-by-row
   "Reads and parses the input file into a vector of vectors. Each vector represents
-  the tree heights in each row."
+  a row of tree heights."
   []
   (->> (memoized-input-file->input-lines)
        (mapv input-line->trees)))
 
 (defn input-file->trees-by-col
   "Reads and parses the input file into a vector of vectors. Each vector represents
-  the tree heights in each colum."
+  a column of tree heights."
   []
-  (let [input-lines (memoized-input-file->input-lines)
-        row-count (count input-lines)]
-    (->> (memoized-input-file->input-lines)
-         (apply interleave)
-         (map str->int)
-         (partition row-count)
-         (mapv vec))))
+  (->> (memoized-input-file->input-lines)
+       (apply map vector)
+       (mapv input-line->trees)))
 
 (defn create-grid
-  "Reads the input file and creates a sequence that contains the coordinates of each
-  tree as a vector of two integers. Indices start from [0 0]."
+  "Reads the input file and creates a sequence that contains the coordinates [x y]
+  of each tree. Indices start from [0 0]."
   []
   (let [trees-by-row (input-file->trees-by-row)
         trees-by-col (input-file->trees-by-col)]
@@ -67,14 +61,14 @@
   2) If called with 3 args, it accepts the tree heights organized by rows and columns
   (a vector of vectors in both cases) and the coordinates of a tree height. Returns true
   if that tree is visible from the edges of its row or column."
-  ([tree-row tree-col-index]
-   (let [tree (get tree-row tree-col-index)]
-     (or (let [left-trees (subvec tree-row 0 tree-col-index)]
+  ([trees-line line-index]
+   (let [tree (get trees-line line-index)]
+     (or (let [left-trees (subvec trees-line 0 line-index)]
            (every? #(> tree %) left-trees))
-         (let [right-trees (subvec tree-row (inc tree-col-index))]
+         (let [right-trees (subvec trees-line (inc line-index))]
            (every? #(> tree %) right-trees)))))
-  ([trees-by-row trees-by-col tree-index]
-   (let [[tree-row-index tree-col-index] tree-index]
+  ([trees-by-row trees-by-col tree-coordinates]
+   (let [[tree-row-index tree-col-index] tree-coordinates]
      (or (let [tree-col (get trees-by-col tree-col-index)]
            (tree-visible-from-edge? tree-col tree-row-index))
          (let [tree-row (get trees-by-row tree-row-index)]
