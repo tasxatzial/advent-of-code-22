@@ -63,7 +63,7 @@
        (map #(nth % crate-index))
        (filterv #(not= \space %))))
 
-(defn parse-file->stacks
+(defn input-file->stacks
   "Reads and parses the input file into a map of {stack id} -> {stack of crates}.
   Each stack of crates is represented by a vector and its last item is the top
   of the stack."
@@ -82,14 +82,14 @@
           (recur (rest stack-ids) (rest crate-indices) new-result))
         result))))
 
-(def memoized-input-file->stacks (memoize parse-file->stacks))
+(def memoized-input-file->stacks (memoize input-file->stacks))
 
 ; --------------------------
 ; parse input into a sequence that represents the instructions
 
-(defn extract-instruction
-  "Accepts a line that corresponds to an instruction and returns a vector that
-  contains just the 3 integers in that line."
+(defn parse-instruction-line
+  "Accepts a line that corresponds to an instruction and returns a vector
+  of 3 integers."
   [instruction-line]
   (let [instruction-tokens (clojure.string/split instruction-line #" ")
         amount-to-move (get instruction-tokens 1)
@@ -97,29 +97,29 @@
         to-stack (get instruction-tokens 5)]
     (mapv str->int [amount-to-move from-stack to-stack])))
 
-(defn parse-file->instructions
+(defn input-file->instructions
   "Reads and parses the input file into a sequence of vectors. Each vector represents
   an instruction and contains 3 integers."
   []
   (->> (memoized-input-file->input-lines)
        (drop-while #(not= "" %))
        rest
-       (map extract-instruction)))
+       (map parse-instruction-line)))
 
-(def memoized-input-file->instructions (memoize parse-file->instructions))
+(def memoized-input-file->instructions (memoize input-file->instructions))
 
 ; --------------------------
 ; execute instructions
 
 (defn move-crates
   "Returns the new stacks after an instruction has been executed.
-  crate-order is a function that determines the order of insertion in the target stack."
-  [stacks instruction crate-order]
+  crate-order-fn is a function that determines the order of insertion in the target stack."
+  [stacks instruction crate-order-fn]
   (let [[amount-to-move src-stack-id target-stack-id] instruction
         src-stack (get stacks src-stack-id)
         target-stack (get stacks target-stack-id)
         new-src-stack (subvec src-stack 0 (- (count src-stack) amount-to-move))
-        removed-crates (crate-order (subvec src-stack (- (count src-stack) amount-to-move)))
+        removed-crates (crate-order-fn (subvec src-stack (- (count src-stack) amount-to-move)))
         new-target-stack (into target-stack removed-crates)]
     (-> stacks
         (assoc src-stack-id new-src-stack)
@@ -127,17 +127,17 @@
 
 (defn execute-instructions
   "Executes all instructions and returns the final stacks.
-  crate-order is a function that determines the order of insertion in the target stack."
-  [instructions stacks crate-order]
+  crate-order-fn is a function that determines the order of insertion in the target stack."
+  [instructions stacks crate-order-fn]
   (reduce (fn [result instruction]
-            (move-crates result instruction crate-order))
+            (move-crates result instruction crate-order-fn))
           stacks
           instructions))
 
 ; --------------------------
 ; results
 
-(defn get-top-stack-crates-as-string
+(defn get-top-crates-as-string
   [stacks]
   (->> stacks
        (into (sorted-map))
@@ -146,12 +146,12 @@
        (apply str)))
 
 (defn day05
-  [crate-order]
+  [crate-order-fn]
   (let [stacks (memoized-input-file->stacks)
         instructions (memoized-input-file->instructions)]
     (-> instructions
-        (execute-instructions stacks crate-order)
-        get-top-stack-crates-as-string)))
+        (execute-instructions stacks crate-order-fn)
+        get-top-crates-as-string)))
 
 (defn day05-1
   []

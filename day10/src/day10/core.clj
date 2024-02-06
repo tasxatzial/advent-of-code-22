@@ -13,7 +13,7 @@
 
 (def input-file "resources\\input.txt")
 
-(defn input-line->cmd
+(defn parse-line
   "Parses an input line into a command. Returns a vector, its first element is a
   keyword that describes the command, and the second element, if it exists,
   is an integer."
@@ -25,16 +25,16 @@
 
 (defn parse-file
   "Reads and parses the input file into a vector of commands. The form of each
-  command is described in the function input-line->cmd."
+  command is described in the function parse-line."
   []
   (->> input-file
        slurp
        clojure.string/split-lines
-       (mapv input-line->cmd)))
+       (mapv parse-line)))
 
 (def memoized-input-file->cmds (memoize parse-file))
 
-(def cmd-cycle-cost
+(def cmd->cycle-cost
   {:addx 2
    :noop 1})
 
@@ -44,7 +44,7 @@
   process of executing the command."
   [cmd register]
   (let [[op val] cmd
-        cycle-cost (cmd-cycle-cost op)
+        cycle-cost (cmd->cycle-cost op)
         initial-registers (vec (take (dec cycle-cost) (repeat register)))]
     (case op
       :addx (conj initial-registers (+ val register))
@@ -82,14 +82,14 @@
         registers (exec-cmds cmds register)]
     (loop [registers (take crt-length registers)
            crt []
-           pixel-idx 0
+           idx 0
            cmds cmds]
       (if (seq registers)
         (let [register (first registers)
               sprite [(dec register) register (inc register)]
-              new-crt (conj crt (get-pixel-val pixel-idx sprite))
-              new-pixel-idx (mod (inc pixel-idx) line-length)]
-          (recur (rest registers) new-crt new-pixel-idx (rest cmds)))
+              updated-crt (conj crt (get-pixel-val idx sprite))
+              next-idx (mod (inc idx) line-length)]
+          (recur (rest registers) updated-crt next-idx (rest cmds)))
         (partition line-length crt)))))
 
 ; --------------------------

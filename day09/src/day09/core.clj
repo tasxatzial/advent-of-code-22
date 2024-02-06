@@ -9,11 +9,11 @@
   (Integer/parseInt (str s)))
 
 (defn seq-reductions
-  "Similar functionality to the built-in function 'reductions' with two exceptions:
-  1) The initial value is not included in the result.
-  2) Short-circuits if at any step f(last item in result, el) is the same as el.
-  In this case, the rest of the coll is added to the final result.
-  Returns a vector."
+  "Repeatedly calculates f(res, el) for every element in coll. The result of the last iteration
+  becomes the first argument in the next iteration. Initial value of res is init. All results
+  except init are collected in a vector.
+  If at any step f(res, el) is the same as el, the result of the current iteration is skipped and
+  the rest of the coll is added to the vector."
   [f init coll]
   (loop [new-coll []
          coll coll
@@ -30,7 +30,7 @@
 
 (def input-file "resources\\input.txt")
 
-(defn input-line->instruction
+(defn parse-line
   "Parses an input line and returns a vector that represents an instruction.
   The first element of the vector is the direction to move and is represented by the
   :D :U :L :R keywords. The second element is the move distance."
@@ -41,12 +41,12 @@
 
 (defn parse-file
   "Reads and parses the input file into a sequence of instructions.
-  The form of each instruction is described in function input-line->instruction."
+  The form of each instruction is described in function parse-line."
   []
   (->> input-file
        slurp
        clojure.string/split-lines
-       (map input-line->instruction)))
+       (map parse-line)))
 
 (def memoized-input-file->instructions (memoize parse-file))
 
@@ -74,17 +74,16 @@
   "Moves the given knot so that the touches the target knot and returns
   its new position. Knots must be subsequent."
   [target-knot knot]
-  (let [[x-to-move y-to-move] knot
-        [x-moved y-moved] target-knot
-        diff [(- x-moved x-to-move) (- y-moved y-to-move)]
+  (let [[x1 y1] knot
+        [x2 y2] target-knot
+        diff [(- x2 x1) (- y2 y1)]
         move-vector (knot-distance->move-vector diff)]
     (map + knot move-vector)))
 
 (defn execute-instruction
   "Receives an instruction and a vector of knots (head knot is first). Executes the
-  instruction and returns a map with :tail-positions being the vector of all the
-  positions of the tail knot and :knots being the vector of the final positions
-  of all knots."
+  instruction and returns a map with :tail-positions being the vector of the
+  positions of the tail knot and :knots being the vector of the positions of all knots."
   [instruction knots]
   (loop [instruction instruction
          knots knots
@@ -106,8 +105,8 @@
 (defn execute-instructions
   "Receives a sequence of instructions and a vector of knots (head knot is first).
   Executes all instructions and returns the final result as a map with :tail-positions
-  being the set of all the positions of the tail knot and :knots being the vector of
-  the final positions of all knots."
+  being the set of the positions of the tail knot and :knots being the vector of the
+  positions of all knots."
   [instructions initial-knots]
   (loop [instructions instructions
          knots initial-knots
@@ -115,8 +114,8 @@
     (if (seq instructions)
       (let [instruction (first instructions)
             {new-tail-positions :tail-positions new-knot-positions :knots} (execute-instruction instruction knots)
-            tail-positions (into tail-positions new-tail-positions)]
-        (recur (rest instructions) new-knot-positions tail-positions))
+            new-tail-positions (into tail-positions new-tail-positions)]
+        (recur (rest instructions) new-knot-positions new-tail-positions))
       {:tail-positions tail-positions
        :knots knots})))
 
@@ -139,5 +138,5 @@
 
 (defn -main
   []
-  (println (time (day09-1)))
-  (println (time (day09-2))))
+  (println (day09-1))
+  (println (day09-2)))

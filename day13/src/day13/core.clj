@@ -6,7 +6,7 @@
 
 (def input-file "resources\\input.txt")
 
-(defn input-line->packet
+(defn parse-line
   "Parses an input line into the corresponding vector form (a packet)."
   [line]
   (when (not= "" line)
@@ -19,7 +19,7 @@
   (->> input-file
        slurp
        clojure.string/split-lines
-       (map input-line->packet)
+       (map parse-line)
        (filter some?)))
 
 (def memoized-input-file->packets (memoize parse-file))
